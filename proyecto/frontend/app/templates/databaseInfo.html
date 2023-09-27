@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Database Information</h1>
+    {{ database.id }} <br>
+    {{ database.name }} <br>
+    {{ database.url }} <br>
+    <ul>
+        {% for par in database.pares %}
+        <li>
+            {% set pair = par.split(":") %}
+            <strong>Clave:</strong> {{ pair[0] }} <br>
+            <strong>Valor:</strong> {{ pair[1] }}
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="box">
+        <form method="POST" action="/addKeyValue">
+            {{ form1.hidden_tag() }}
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="key" placeholder="Key">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="value" placeholder="Value">
+                </div>
+            </div>
+
+            <button class="button is-block is-info is-large is-fullwidth" type="submit">Add</button>
+        </form>
+        {% if error1 %}
+        <p class="error"><strong>Error:</strong> {{ error1 }}</p>
+        {% endif %}
+    </div>
+    <div class="box">
+        <form method="POST" action="/removeKeyValue">
+            {{ form2.hidden_tag() }}
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="key" placeholder="Key">
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth" type="submit">Remove</button>
+        </form>
+        {% if error2 %}
+        <p class="error"><strong>Error:</strong> {{ error2 }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

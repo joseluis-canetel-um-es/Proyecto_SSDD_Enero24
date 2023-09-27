@@ -32,8 +32,11 @@
                 </div>
             </div>
 
-            <button class="button is-block is-info is-large is-fullwidth" type="submit"> Sign Up</button>
+            <button class="button is-block is-info is-large is-fullwidth" type="submit">Sign Up</button>
         </form>
+        {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

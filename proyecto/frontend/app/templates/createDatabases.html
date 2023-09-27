@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Crear Databases</h3>
+    <div class="box">
+        <form method="POST" action="/createDatabases">
+            {{ form.hidden_tag() }}
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="key" placeholder="Key">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="value" placeholder="Value">
+                </div>
+            </div>
+
+            <button class="button is-block is-info is-large is-fullwidth" type="submit">Create database</button>
+        </form>
+        {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

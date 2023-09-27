@@ -57,9 +57,20 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
           </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('createDatabases') }}">Crear Databases</a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('viewDatabases') }}">Visualisar Databases</a>
+          </li>
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('login') }}">Login!</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('signup') }}">Signup!</a>
           </li>
           {% endif %}
 
