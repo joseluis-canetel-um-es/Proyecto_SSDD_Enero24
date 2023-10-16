@@ -14,4 +14,5 @@ public interface IDAOFactory
     public IUserDAO createSQLUserDAO();
 
     public IUserDAO createMongoUserDAO();
+    
 }
