@@ -6,6 +6,7 @@ package es.um.sisdist.backend.Service.impl;
 import java.util.ArrayList;
 
 
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +17,8 @@ import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.dao.DAOFactoryImpl;
 import es.um.sisdist.backend.dao.IDAOFactory;
-import es.um.sisdist.backend.dao.models.DataBase;
+import es.um.sisdist.backend.dao.database.IDatabaseDAO;
+import es.um.sisdist.backend.dao.models.Database;
 import es.um.sisdist.backend.dao.models.User;
 import es.um.sisdist.backend.dao.models.utils.UserUtils;
 import es.um.sisdist.backend.dao.user.IUserDAO;
@@ -30,7 +32,8 @@ import io.grpc.ManagedChannelBuilder;
 public class AppLogicImpl
 {
     IDAOFactory daoFactory;
-    IUserDAO dao;
+    IUserDAO UserDao;
+    IDatabaseDAO DatabaseDao;
     private static final Logger logger = Logger.getLogger(AppLogicImpl.class.getName());
 
     private final ManagedChannel channel;
@@ -45,10 +48,12 @@ public class AppLogicImpl
         Optional<String> backend = Optional.ofNullable(System.getenv("DB_BACKEND"));
         
         if (backend.isPresent() && backend.get().equals("mongo")) {
-            dao = daoFactory.createMongoUserDAO();
+        	UserDao = daoFactory.createMongoUserDAO();
+        	DatabaseDao = daoFactory.createMongoDatabaseDAO();
         }
         else {
-            dao = daoFactory.createSQLUserDAO();
+        	UserDao = daoFactory.createSQLUserDAO();
+        	DatabaseDao = daoFactory.createSQLDatabaseDAO();
         }
         var grpcServerName = Optional.ofNullable(System.getenv("GRPC_SERVER"));
         var grpcServerPort = Optional.ofNullable(System.getenv("GRPC_SERVER_PORT"));
@@ -69,13 +74,13 @@ public class AppLogicImpl
 
     public Optional<User> getUserByEmail(String email)
     {
-        Optional<User> u = dao.getUserByEmail(email);
+        Optional<User> u = UserDao.getUserByEmail(email);
         return u;
     }
 
     public Optional<User> getUserById(String userId)
     {
-        return dao.getUserById(userId);
+        return UserDao.getUserById(userId);
     }
 
     public boolean ping(int v)
@@ -95,10 +100,10 @@ public class AppLogicImpl
     // si procede,
     public Optional<User> checkLogin(String email, String pass)
     {
-        Optional<User> u = dao.getUserByEmail(email);
+        Optional<User> u = UserDao.getUserByEmail(email);
         if (u.isPresent())
         {
-        	dao.addVisits(email); // cuando se accede al endpoint, se debe incrementar el numero de visitas
+        	UserDao.addVisits(email); // cuando se accede al endpoint, se debe incrementar el numero de visitas
             String hashed_pass = UserUtils.md5pass(pass);
             if (0 == hashed_pass.compareTo(u.get().getPassword_hash())) {
                 return u;
@@ -110,27 +115,26 @@ public class AppLogicImpl
     
     // REGISTRO - inserta en db el usuario
     public boolean signup(String email, String name, String password) {
-    	return dao.insertUser(email, name, password);    	
+    	return UserDao.insertUser(email, name, password);    	
     }
     
     
     // crea una base de datos relacionada al id de un usuario
     // se debe insertar un valor inicial en la lista
     public boolean createDatabase(String idUser, String databaseName, String url, LinkedList<String> pares) {
-    	return dao.insertDatabase(idUser, databaseName, url, pares);
+    	return DatabaseDao.createDatabase(idUser, databaseName, url, pares);
     }
     
-    // devuelve la database dado su nombre
-    public DataBase getDatabase(String idUser, String databaseName) {    	
-    	DataBase d = dao.getDatabase(idUser, databaseName);
-        return d;
+    // devuelve la database dado su id
+    public Optional<Database> getDatabase(String idUser, String idDatabase) {    	
+    	return DatabaseDao.getDatabase(idDatabase);
     }
     
     // dado un id de usuario retorna las bases de datos relacioandos
-    public Optional<LinkedList<DataBase>> getDatabasesByUserId(String userId) {
+    public Optional<LinkedList<Database>> getDatabasesByUserId(String idUser) {
         try {
-        	Optional<LinkedList<DataBase>> databases = dao.getDatabases(userId);
-        	return databases;
+        	return DatabaseDao.getDatabases(idUser);
+
         } catch (Exception e) {
             // Manejar la excepción según sea necesario
         }
@@ -138,19 +142,13 @@ public class AppLogicImpl
     }
     
     // dado un id de db y una clave, elimina el par <k,v> de la db
-    public boolean insertKeyValue(String userId, String dbId, String key, String value) {
-
-		boolean deleted = dao.insertClaveValor(userId, dbId, key, value);
-		return deleted;
-
+    public boolean insertKeyValue(String idUser, String idDatabase, String key, String value) {
+    	return DatabaseDao.insertClaveValor(idDatabase, key, value);
     }
     
     // dado un id de db y una clave, elimina el par <k,v> de la db
-    public boolean deleteKeyValue(String userId, String dbId, String key) {
-
-		boolean deleted = dao.deleteClaveValor(userId, dbId, key);
-		return deleted;
-
+    public boolean deleteKeyValue(String idUser, String idDatabase, String key) {
+    	return DatabaseDao.deleteClaveValor(idDatabase, key);
     }
   
 }

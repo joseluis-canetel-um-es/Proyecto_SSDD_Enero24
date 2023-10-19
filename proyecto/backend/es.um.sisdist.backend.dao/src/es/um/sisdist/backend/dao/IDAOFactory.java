@@ -3,6 +3,7 @@
  */
 package es.um.sisdist.backend.dao;
 
+import es.um.sisdist.backend.dao.database.IDatabaseDAO;
 import es.um.sisdist.backend.dao.user.IUserDAO;
 
 /**
@@ -15,4 +16,7 @@ public interface IDAOFactory
 
     public IUserDAO createMongoUserDAO();
     
+    public IDatabaseDAO createSQLDatabaseDAO();
+
+    public IDatabaseDAO createMongoDatabaseDAO();
 }

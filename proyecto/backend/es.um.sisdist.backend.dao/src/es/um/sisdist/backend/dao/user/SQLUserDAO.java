@@ -15,7 +15,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import es.um.sisdist.backend.dao.models.DataBase;
+import es.um.sisdist.backend.dao.models.Database;
 import es.um.sisdist.backend.dao.models.User;
 import es.um.sisdist.backend.dao.models.utils.UserUtils;
 import es.um.sisdist.backend.dao.utils.Lazy;
@@ -105,12 +105,8 @@ public class SQLUserDAO implements IUserDAO
         {
             return Optional.empty();
         }
-    }
+    } 
     
- // modificada por kholoud
- 
-    
-    /** modificado por kholoud*/
     // recibe un objeto User que contiene la información actualizada 
     // del usuario que se desea modificar en la base de datos
     public boolean updateUser(User user) {
@@ -131,7 +127,6 @@ public class SQLUserDAO implements IUserDAO
         return false;
     }
     
-    /** modificada por kholoud*/
     // inserta el user en la base de datos 
     // password ID Y TOKEN ????????????????????
     public boolean insertUser(String email, String name, String password) {
@@ -151,7 +146,6 @@ public class SQLUserDAO implements IUserDAO
         return false;
     }
     
-    /** modificada por kholoud*/
     // elimina el user en la base de datos 
     // recibe el ID DEL USUARIO
     public boolean deleteUser(String email) {
@@ -165,9 +159,7 @@ public class SQLUserDAO implements IUserDAO
         }
         return false;
     }
-    
-    /**modificado por kholoud*/
-    
+        
 	@Override
 	public void addVisits(String email) {
 		// TODO Auto-generated method stub
@@ -180,45 +172,5 @@ public class SQLUserDAO implements IUserDAO
 		    } catch (SQLException e) {
 		       // return false;
 		    }
-		
-
 	}
-
-	@Override
-	public boolean insertDatabase(String idUser, String databaseName, String url, LinkedList<String> pares) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean deleteDatabase(String idUser, String databaseName) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	
-	@Override
-	public boolean deleteClaveValor(String idUser, String databaseName, String clave) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public DataBase getDatabase(String idUser, String databaseName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Optional<LinkedList<DataBase>> getDatabases(String idUser) {
-		// TODO Auto-generated method stub
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean insertClaveValor(String idUser, String databaseName, String clave, String value) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

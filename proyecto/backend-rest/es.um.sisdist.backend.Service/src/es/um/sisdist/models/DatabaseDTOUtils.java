@@ -1,22 +1,14 @@
 package es.um.sisdist.models;
 
-import es.um.sisdist.backend.dao.models.DataBase;
+import es.um.sisdist.backend.dao.models.Database;
 
 public class DatabaseDTOUtils {
 	
-	public static DataBase fromDTO(DatabaseDTO dto) {
-		DataBase database = new DataBase(dto.getName());
-		database.setId(dto.getId());
-		database.setUrl(dto.getUrl());
-		database.setPares(dto.getPares());
-		return database;
+	public static Database fromDTO(DatabaseDTO dto) {
+		return new Database(dto.getIdUser(), dto.getId(), dto.getName(), dto.getUrl(), dto.getPares());
 	}
 
-	public static DatabaseDTO toDTO(DataBase database) {
-		DatabaseDTO dto = new DatabaseDTO(database.getName());
-		dto.setId(database.getId());
-		dto.setUrl(database.getUrl());
-		dto.setPares(database.getPares());
-		return dto;
+	public static DatabaseDTO toDTO(Database database) {
+		return new DatabaseDTO(database.getIdUser(), database.getId(), database.getName(), database.getUrl(), database.getPares());
 	}
 }

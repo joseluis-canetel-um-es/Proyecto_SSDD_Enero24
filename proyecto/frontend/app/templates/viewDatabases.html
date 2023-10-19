@@ -7,7 +7,7 @@
     <ul>
         {% for database in databases %}
         <li>
-            {{ database.name }} - <a href="{{ url_for('databaseInfo', databasename=database.name) }}">Ver Base de Datos</a> <br>
+            {{ database.name }} - <a href="{{ url_for('databaseInfo', db_id=database.id) }}">Ver Base de Datos</a> <br>
             <ul>
                 {% for par in database.pares %}
                 <li>

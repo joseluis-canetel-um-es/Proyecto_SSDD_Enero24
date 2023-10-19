@@ -4,18 +4,15 @@
 package es.um.sisdist.backend.dao.user;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
+
 import static com.mongodb.client.model.Filters.eq;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static java.util.Arrays.*;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.LinkedTransferQueue;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecProvider;
@@ -40,7 +37,6 @@ import es.um.sisdist.backend.dao.utils.Lazy;
  */
 public class MongoUserDAO implements IUserDAO
 {
-    private static final Logger logger = Logger.getLogger(MongoUserDAO.class.getName());
     private Supplier<MongoCollection<User>> collection;
 
     public MongoUserDAO()
@@ -108,7 +104,6 @@ public class MongoUserDAO implements IUserDAO
                 .append("name", user.getName())
                 .append("token", user.getToken())
                 .append("visits", user.getVisits())
-                .append("databases", user.getDatabases())
             );
             com.mongodb.client.result.UpdateResult result = collection.get().updateOne(filter, update);
             return result.getModifiedCount() > 0;
@@ -125,103 +120,5 @@ public class MongoUserDAO implements IUserDAO
 	        collection.get().updateOne(filter, update);
 	    } catch (Exception e) {
 	    }
-	}
-
-	@Override
-	public boolean insertDatabase(String idUser, String databaseName, String url, LinkedList<String> pares) {
-		try {
-			DataBase database = new DataBase(databaseName); // Crear objeto DataBase con el nombre db
-	        database.setId(UUID.randomUUID().toString()); // Generar un ID único para la base de datos
-	        database.setUrl(url); // Asignar la URL
-	        database.setPares(pares); // Asignar la lista de pares clave-valor
-	        LinkedList<DataBase> databases = collection.get().find(eq("id", idUser)).first().getDatabases();
-	        databases.add(database);
-	        Document filter = new Document("id", idUser);
-            Document update = new Document("$set", new Document("databases", databases));
-            com.mongodb.client.result.UpdateResult result = collection.get().updateOne(filter, update);  
-            return result.getModifiedCount() > 0;
-        } catch (Exception e) {
-            return false;
-        }
-	}
-
-	@Override
-	public boolean deleteDatabase(String idUser, String databaseName) {
-		try {
-			LinkedList<DataBase> databases = collection.get().find(eq("id", idUser)).first().getDatabases();
-			for (DataBase database : databases) {
-			    if (database.getName().equals(databaseName)) {
-			        return databases.remove(database);
-			    }
-			}
-            Document filter = new Document("id", idUser);
-            Document update = new Document("$set", new Document("databases", databases));
-            com.mongodb.client.result.UpdateResult result = collection.get().updateOne(filter, update);
-            return result.getModifiedCount() > 0;
-        } catch (Exception e) {
-            return false;
-        }
-	}
-
-	@Override
-	public DataBase getDatabase(String idUser, String databaseName) {
-		try {
-			LinkedList<DataBase> databases = collection.get().find(eq("id", idUser)).first().getDatabases();
-			for (DataBase database : databases) {
-			    if (database.getName().equals(databaseName)) {
-			        return database;
-			    }
-			}
-			return null;
-		} catch (Exception e) {
-            return null;
-        }
-	}
-
-	@Override
-	public Optional<LinkedList<DataBase>> getDatabases(String idUser) {
-		try {
-			Optional<LinkedList<DataBase>> databases = Optional.ofNullable(collection.get().find(eq("id", idUser)).first().getDatabases());
-			return databases;
-		}catch (Exception e) {
-            return null;
-        }
-	}
-
-	@Override
-	public boolean insertClaveValor(String idUser, String databaseId, String clave, String value) {
-		try {
-			LinkedList<DataBase> databases = collection.get().find(eq("id", idUser)).first().getDatabases();
-			for (DataBase database : databases) {
-			    if (database.getId().equals(databaseId)) {
-			    	database.addPar(clave, value);
-			    }
-			}
-            Document filter = new Document("id", idUser);
-            Document update = new Document("$set", new Document("databases", databases));
-            com.mongodb.client.result.UpdateResult result = collection.get().updateOne(filter, update);
-            return result.getModifiedCount() > 0;
-        } catch (Exception e) {
-            return false;
-        }
-	}
-	
-	@Override
-	public boolean deleteClaveValor(String idUser, String databaseId, String clave) {
-		try {
-			LinkedList<DataBase> databases = collection.get().find(eq("id", idUser)).first().getDatabases();
-			for (DataBase database : databases) {
-				if (database.getId().equals(databaseId)) {
-			    	database.removePar(clave);
-			    }
-			}
-			Document filter = new Document("id", idUser);
-	        Document update = new Document("$set", new Document("databases", databases));
-	        com.mongodb.client.result.UpdateResult result = collection.get().updateOne(filter, update);
-	        return result.getModifiedCount() > 0;
-		}catch (Exception e) {
-            return false;
-        }
-		
 	}
 }

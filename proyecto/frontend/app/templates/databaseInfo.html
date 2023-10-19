@@ -2,9 +2,9 @@
 
 {% block content %}
     <h1>Database Information</h1>
-    {{ database.id }} <br>
-    {{ database.name }} <br>
-    {{ database.url }} <br>
+    <strong>ID:</strong> {{ database.id }} <br>
+    <strong>Url:</strong> {{ database.url }} <br>
+    <strong>Name:</strong> {{ database.name }} <br>
     <ul>
         {% for par in database.pares %}
         <li>
@@ -15,8 +15,9 @@
         {% endfor %}
     </ul>
     <div class="box">
-        <form method="POST" action="/addKeyValue">
+        <form method="post" action="/databaseInfo?db_id={{ db_id }}">
             {{ form1.hidden_tag() }}
+            <input type="hidden" name="_method" value="PUT">
             <div class="field">
                 <div class="control">
                     <input class="input is-large" type="text" name="key" placeholder="Key">
@@ -36,8 +37,9 @@
         {% endif %}
     </div>
     <div class="box">
-        <form method="POST" action="/removeKeyValue">
+        <form method="post" action="/databaseInfo?db_id={{ db_id }}">
             {{ form2.hidden_tag() }}
+            <input type="hidden" name="_method" value="DELETE">
             <div class="field">
                 <div class="control">
                     <input class="input is-large" type="text" name="key" placeholder="Key">

@@ -12,6 +12,7 @@ from forms import LoginForm, RegistrationForm, DatabaseForm, AddKeyValueForm, Re
 
 import hashlib
 import logging
+import json
 
 app = Flask(__name__, static_url_path='')
 login_manager = LoginManager()
@@ -57,7 +58,7 @@ def login():
         return render_template('login.html', form=form,  error=error)
     
 
-# nueva funcion para permitir registro de usuario -- KHOLOUD
+# nueva funcion para permitir registro de usuario
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     logging.basicConfig(level=logging.DEBUG)
@@ -73,7 +74,6 @@ def signup():
 
             cabecera = {"Content-Type" : "application/json"}
             credenciales_registro = {"email" : email, "name" : name, "password" : hashlib.sha256( password.encode('utf-8')).hexdigest()}
-            logging.info("MI ID ES "+id)
             response = requests.post('http://backend-rest:8080/Service/checkSignup', headers = cabecera, json=credenciales_registro)
             if response.status_code == 200:
                 return redirect(url_for('login')) 
@@ -131,45 +131,38 @@ def viewDatabases():
         error = 'No se ha podido obtener las bases de datos'
     return render_template('viewDatabases.html', error = error)    
 
-@app.route('/databaseInfo')
-@login_required
+@app.route('/databaseInfo', methods=['GET', 'POST'])
 def databaseInfo():
     error1 = None
     error2 = None
-    form1 = AddKeyValueForm(None if request.method != 'POST' else request.form)
-    form2 = RemoveKeyValueForm(None if request.method != 'POST' else request.form)
-    database = request.args.get('database')
-    if request.method == "POST": 
-        if form1.validate():
-            id = current_user.id
-            dbid = database.id
+    form1 = AddKeyValueForm()
+    form2 = RemoveKeyValueForm()
+    db_id = request.args.get('db_id')
+    id = current_user.id
+
+    if request.method == 'POST':
+        if form1.validate_on_submit():
             key = form1.key.data
-            value = form1.value.data 
-            cabecera = {"Content-Type" : "application/json"}
-            datos_database = {"key" : key, "value": value}
-            response = requests.post('http://backend-rest:8080/Service/u/'+id+'/db/'+dbid+'/a', headers = cabecera, json=datos_database)
+            value = form1.value.data
+            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id+'/d/'+key+'?v='+value)
             if response.status_code == 200:
-                return render_template('databaseInfo.html', database = database, form1 = form1)
+                return redirect(url_for('databaseInfo', db_id=db_id))
             elif response.status_code == 400:
                 error1 = 'No se ha podido crear la base de datos'
-                return render_template('databaseInfo.html', database = database, form1 = form1, error1=error1)
-            else:
-                error1 = 'Error no controlado'
-                return render_template('databaseInfo.html', database = database, form1 = form1, error1=error1)
-        elif form2.validate():
-            id = current_user.id
-            dbid = database.id
+        elif form2.validate_on_submit():
             key = form2.key.data
-            response = requests.post('http://backend-rest:8080/Service/u/'+id+'/db/'+dbid+'/d/'+key)
+            response = requests.delete('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id+'/d/'+key)
             if response.status_code == 200:
-                return render_template('databaseInfo.html', database = database, form2 = form2)
+                return redirect(url_for('databaseInfo', db_id=db_id))
             elif response.status_code == 400:
                 error2 = 'No se ha podido crear la base de datos'
-                return render_template('databaseInfo.html', database = database, form2 = form2, error2=error2)
-            else:
-                error2 = 'Error no controlado'
-                return render_template('databaseInfo.html', database = database, form1 = form1, error2=error2)
-    return render_template('databaseInfo.html', database = database, form1 = form1, form2 = form2, error1=error1, error2=error2) 
+
+    response = requests.get('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id)
+    if response.status_code == 200:
+        database = response.json()
+    else:
+        pass
+    return render_template('databaseInfo.html', database=database, db_id=db_id, form1=form1, form2=form2, error1=error1, error2=error2)
 
 @app.route('/logout')
 @login_required
