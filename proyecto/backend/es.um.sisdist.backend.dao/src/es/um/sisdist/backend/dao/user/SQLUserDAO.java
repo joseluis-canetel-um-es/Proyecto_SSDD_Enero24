@@ -159,18 +159,11 @@ public class SQLUserDAO implements IUserDAO
         }
         return false;
     }
-        
+
 	@Override
-	public void addVisits(String email) {
+	public boolean addVisits(String email) {
 		// TODO Auto-generated method stub
-		// obtener usuario y modificar su numero de visitas en la base de datos
-		 try {
-		        PreparedStatement stm = conn.get().prepareStatement("UPDATE users SET visits = visits + 1 WHERE email = ?");
-		        stm.setString(1, email);
-		        stm.executeUpdate();
-		        //return rowsAffected > 0;
-		    } catch (SQLException e) {
-		       // return false;
-		    }
+		return false;
 	}
+        
 }

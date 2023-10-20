@@ -100,10 +100,10 @@ public class AppLogicImpl
     // si procede,
     public Optional<User> checkLogin(String email, String pass)
     {
+    	UserDao.addVisits(email); // cuando se accede al endpoint, se debe incrementar el numero de visitas
         Optional<User> u = UserDao.getUserByEmail(email);
         if (u.isPresent())
         {
-        	UserDao.addVisits(email); // cuando se accede al endpoint, se debe incrementar el numero de visitas
             String hashed_pass = UserUtils.md5pass(pass);
             if (0 == hashed_pass.compareTo(u.get().getPassword_hash())) {
                 return u;

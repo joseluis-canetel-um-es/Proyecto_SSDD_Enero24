@@ -76,7 +76,7 @@ public class MongoUserDAO implements IUserDAO
     @Override
    public boolean insertUser(String email, String name, String password) {
         try {
-            User user = new User(email, UserUtils.md5pass(password), name, UUID.randomUUID().toString(),0); // Crear objeto User con los datos proporcionados
+            User user = new User(email, UserUtils.md5pass(password), name, UUID.randomUUID().toString(), 0); // Crear objeto User con los datos proporcionados
             collection.get().insertOne(user);
             return true;
         } catch (Exception e) {
@@ -113,12 +113,20 @@ public class MongoUserDAO implements IUserDAO
     }
 
 	@Override
-	public void addVisits(String email) {
+	public boolean addVisits(String email) {
 		try {
-	        Document filter = new Document("email", email);
-	        Document update = new Document("$inc", new Document("visits", 1));
-	        collection.get().updateOne(filter, update);
+			Optional<User> userOptional = getUserByEmail(email);
+		    if (userOptional.isPresent()) {
+		        User user = userOptional.get();
+		        user.addVisits();
+		        com.mongodb.client.result.UpdateResult result = collection.get().replaceOne(eq("email", email), user);
+	            return result.getModifiedCount() > 0;
+		    }else {
+		    	return false;
+		    }
 	    } catch (Exception e) {
+	    	 return false;
 	    }
 	}
+	
 }
