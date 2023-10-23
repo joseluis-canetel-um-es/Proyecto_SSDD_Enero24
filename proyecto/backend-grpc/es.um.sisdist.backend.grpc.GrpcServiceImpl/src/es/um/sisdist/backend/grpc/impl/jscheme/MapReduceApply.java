@@ -12,9 +12,7 @@ import jscheme.SchemePair;
 import jsint.Pair;
 
 /**
- * 
- * @author dsevilla
- *
+ *  *
  * La clase MappReduceApply recibe un entorno de ejecución JScheme, una función map
  * como una cadena de caracteres, una función reduce como una cadena de caracteres y produce 
  * un array resultado como un diccionario (Map) que mapea claves y valores. Para cada par

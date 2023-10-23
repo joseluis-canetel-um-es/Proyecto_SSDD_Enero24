@@ -89,6 +89,42 @@ public class UsersEndpoint {
 
 	}
 
+	/**
+	 * 	
+	 * MAP REDUCE
+	 */
+	// Método para realizar el procesamiento MapReduce
+    @GET
+	@Path("/{id}/db/{dbid}/mr/{funcion}")
+    public Response performMapReduce(@PathParam("id") String idUser, @PathParam("dbid") String idDatabase, @PathParam("funcion") String funcion) {
+        // Llamar a gRPC para realizar el procesamiento MapReduce con la función indicada
+        // lógica de procesamiento MapReduce con la función
+
+    	 
+    	// resultado que devuelve el procesamiento
+		/*
+		 * String resultado = impl.performMapReduceLogic(idUser, idDatabase, funcion);
+		 * 
+		 * if (resultado != null) { return Response.ok(resultado).build(); // Respuesta
+		 * HTTP 200 OK con el resultado } else { return
+		 * Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); // Respuesta
+		 * HTTP 500 Internal Server Error si hubo un problema }
+		 */
+    	return null;
+    }
+
+    // Aquí deberías implementar tu lógica de procesamiento MapReduce con la función proporcionada
+    //private String performMapReduceLogic(String idUser, String idDatabase, String funcion) {
+        // Lógica para procesar MapReduce con la función dada.
+        // Realiza las operaciones necesarias y devuelve el resultado como una cadena.
+
+        // Ejemplo:
+      //  String resultado = MapReduceProcessor.process(idUser, idDatabase, funcion);
+    //    return resultado;
+    //}
+	
+	
+	
 	// obtener las bases de datos de un usuario dado su ID
 	@GET
 	@Path("/{id}/dbinfo")

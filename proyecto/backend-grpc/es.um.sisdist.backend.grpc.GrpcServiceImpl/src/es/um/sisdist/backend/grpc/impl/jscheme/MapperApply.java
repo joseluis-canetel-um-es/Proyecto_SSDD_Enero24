@@ -8,7 +8,6 @@ import jsint.Procedure;
 
 /**
  * 
- * @author dsevilla
  *
  * La clase MapperApply recibe un entorno de ejecución JScheme, una función map
  * como una cadena de caracteres y opcionalmente una función emit que se conecta 
@@ -19,9 +18,12 @@ public class MapperApply
 {
 	private static Void nilfunc(SchemePair p) {return null;};
 	
-	private String ssdd_map_function = null;
+	private String ssdd_map_function = null; // funcion de mapeo
 	private Function<SchemePair, Void> emit_function = MapperApply::nilfunc;
-	private JScheme js = null;
+	private JScheme js = null; // instancia de JS que será cargada desde JSchemeProvider
+	
+	// añadido
+	
 	
 	private void _install_emit_map_functions()
 	{

@@ -6,7 +6,6 @@ package es.um.sisdist.backend.grpc.impl.jscheme;
 import jscheme.JScheme;
 
 /**
- * @author dsevilla
  *
  */
 public class JSchemeProvider 
@@ -15,6 +14,13 @@ public class JSchemeProvider
 	{
 		JScheme js_instance = new JScheme();
 		// Useful code
+		/** filter: devuelve una nueva lista que contiene los elementos de lst 
+		/* para los cuales f devuelve true
+		 * 
+		 * reduce
+		 * 
+		 * map
+		 * */
 		js_instance.load(
 				  "(define (filter f lst)\n"
 				+ "  (define (iter lst result)\n"

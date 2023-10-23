@@ -8,7 +8,7 @@ import os
 from models import users, User
 
 # Login
-from forms import LoginForm, RegistrationForm, DatabaseForm, AddKeyValueForm, RemoveKeyValueForm
+from forms import LoginForm, RegistrationForm, DatabaseForm, AddKeyValueForm, RemoveKeyValueForm, ProcessMRForm
 
 import hashlib
 import logging
@@ -50,6 +50,9 @@ def login():
             if response.status_code == 200: 
                 user = User(response.json()['id'], response.json()['name'], form.email.data.encode('utf-8'), form.password.data.encode('utf-8'),response.json()['token'], int(response.json()['visits']))
                 users.append(user)
+                logging.debug('EEEEEEEEEEEEEEEEEEEH ESTE ES EL NUMERO DE VISITAS', int(response.json()['visits']))
+                logging.debug('EEEEEEEEEEEEEEEEEEEH ESTE ES EL NUMERO DE VISITAS EN USER', user.visits)
+
                 login_user(user, remember=form.remember_me.data)
                 return redirect(url_for('profile'))
             else:
@@ -133,10 +136,13 @@ def viewDatabases():
 
 @app.route('/databaseInfo', methods=['GET', 'POST'])
 def databaseInfo():
+    # -- modificado -- 
     error1 = None
     error2 = None
+    error3 = None
     form1 = AddKeyValueForm()
     form2 = RemoveKeyValueForm()
+    form3 = ProcessMRForm()
     db_id = request.args.get('db_id')
     id = current_user.id
 
@@ -156,13 +162,20 @@ def databaseInfo():
                 return redirect(url_for('databaseInfo', db_id=db_id))
             elif response.status_code == 400:
                 error2 = 'No se ha podido crear la base de datos'
+        elif form3.validate_on_submit():
+            funcion = form3.funcion.data
+            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id+'/mr/'+funcion)
+            if response.status_code == 200:
+                return redirect(url_for('databaseInfo', db_id=db_id))
+            elif response.status_code == 400:
+                error3 = 'No se ha podido realizar el procesamiento Map reduce'
 
     response = requests.get('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id)
     if response.status_code == 200:
         database = response.json()
     else:
         pass
-    return render_template('databaseInfo.html', database=database, db_id=db_id, form1=form1, form2=form2, error1=error1, error2=error2)
+    return render_template('databaseInfo.html', database=database, db_id=db_id, form1=form1, form2=form2, form3=form3, error1=error1, error2=error2, error3=error3)
 
 @app.route('/logout')
 @login_required

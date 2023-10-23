@@ -26,7 +26,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 /**
- * @author dsevilla
  *
  */
 public class AppLogicImpl
@@ -37,8 +36,8 @@ public class AppLogicImpl
     private static final Logger logger = Logger.getLogger(AppLogicImpl.class.getName());
 
     private final ManagedChannel channel;
-    private final GrpcServiceGrpc.GrpcServiceBlockingStub blockingStub;
-    //private final GrpcServiceGrpc.GrpcServiceStub asyncStub;
+    //private final GrpcServiceGrpc.GrpcServiceBlockingStub blockingStub;
+    private final GrpcServiceGrpc.GrpcServiceStub asyncStub; // server GRPC asincrono
 
     static AppLogicImpl instance = new AppLogicImpl();
 
@@ -63,8 +62,8 @@ public class AppLogicImpl
                 // Channels are secure by default (via SSL/TLS). For the example we disable TLS
                 // to avoid needing certificates.
                 .usePlaintext().build();
-        blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
-        //asyncStub = GrpcServiceGrpc.newStub(channel);
+        //blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
+        asyncStub = GrpcServiceGrpc.newStub(channel);
     }
 
     public static AppLogicImpl getInstance()
@@ -100,10 +99,10 @@ public class AppLogicImpl
     // si procede,
     public Optional<User> checkLogin(String email, String pass)
     {
-    	UserDao.addVisits(email); // cuando se accede al endpoint, se debe incrementar el numero de visitas
         Optional<User> u = UserDao.getUserByEmail(email);
         if (u.isPresent())
         {
+        	UserDao.addVisits(email); // cuando se accede al endpoint, se debe incrementar el numero de visitass
             String hashed_pass = UserUtils.md5pass(pass);
             if (0 == hashed_pass.compareTo(u.get().getPassword_hash())) {
                 return u;
@@ -149,6 +148,15 @@ public class AppLogicImpl
     // dado un id de db y una clave, elimina el par <k,v> de la db
     public boolean deleteKeyValue(String idUser, String idDatabase, String key) {
     	return DatabaseDao.deleteClaveValor(idDatabase, key);
+    }
+    
+    // metodo para lanzar procesamiento map reduce
+    public String performMapReduceLogic(String idUser,String idDatabase, String funcion) {
+    	// * llamar a DAO para conseguir valores de database
+    	// * tomar esos valores y la funcion 
+    	// * llamar a servidor grpc (asincrono) para realizar procesamiento
+    	// * retornar string 
+    	return null;
     }
   
 }

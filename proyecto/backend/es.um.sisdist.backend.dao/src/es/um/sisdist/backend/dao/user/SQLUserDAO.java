@@ -161,9 +161,10 @@ public class SQLUserDAO implements IUserDAO
     }
 
 	@Override
-	public boolean addVisits(String email) {
+	public void addVisits(String email) {
 		// TODO Auto-generated method stub
-		return false;
+		//return false;
+		
 	}
         
 }

@@ -16,5 +16,5 @@ public interface IUserDAO
     
     public boolean updateUser(User user); 
     
-    public boolean addVisits(String email);
+    public void addVisits(String email); // modificado boolean por void
 }

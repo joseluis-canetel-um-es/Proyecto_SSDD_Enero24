@@ -32,7 +32,6 @@ import es.um.sisdist.backend.dao.utils.Lazy;
 
 
 /**
- * @author dsevilla
  *
  */
 public class MongoUserDAO implements IUserDAO
@@ -112,6 +111,7 @@ public class MongoUserDAO implements IUserDAO
         }
     }
 
+    /**
 	@Override
 	public boolean addVisits(String email) {
 		try {
@@ -128,5 +128,21 @@ public class MongoUserDAO implements IUserDAO
 	    	 return false;
 	    }
 	}
+	*/
+    
+    /**modificado por kholoud*/
+   	@Override
+   	public void addVisits(String email) {
+   		// TODO Auto-generated method stub
+   		// obtener usuario y modificar su numero de visitas en la base de datos
+   		try {
+   	        Document filter = new Document("email", email);
+   	        Document update = new Document("$inc", new Document("visits", 1));
+   	        collection.get().updateOne(filter, update);
+   	        //return result.getModifiedCount() > 0;
+   	    } catch (Exception e) {
+   	        //return false;
+   	    }
+   	}
 	
 }
