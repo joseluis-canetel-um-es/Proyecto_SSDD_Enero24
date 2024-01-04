@@ -13,12 +13,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.bson.json.JsonObject;
+
 import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.dao.DAOFactoryImpl;
 import es.um.sisdist.backend.dao.IDAOFactory;
 import es.um.sisdist.backend.dao.database.IDatabaseDAO;
+import es.um.sisdist.backend.dao.databaseMapReduce.IDatabaseMapReduce;
 import es.um.sisdist.backend.dao.models.Database;
+import es.um.sisdist.backend.dao.models.DatabaseMapReduce;
 import es.um.sisdist.backend.dao.models.User;
 import es.um.sisdist.backend.dao.models.utils.UserUtils;
 import es.um.sisdist.backend.dao.user.IUserDAO;
@@ -26,13 +30,15 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 /**
- *
+ * 
  */
 public class AppLogicImpl
 {
     IDAOFactory daoFactory;
     IUserDAO UserDao;
     IDatabaseDAO DatabaseDao;
+    IDatabaseMapReduce DatabaseMapReduceDao;
+    
     private static final Logger logger = Logger.getLogger(AppLogicImpl.class.getName());
 
     private final ManagedChannel channel;
@@ -49,6 +55,7 @@ public class AppLogicImpl
         if (backend.isPresent() && backend.get().equals("mongo")) {
         	UserDao = daoFactory.createMongoUserDAO();
         	DatabaseDao = daoFactory.createMongoDatabaseDAO();
+        	DatabaseMapReduceDao = daoFactory.createMongoDatabaseMrDAO();
         }
         else {
         	UserDao = daoFactory.createSQLUserDAO();
@@ -62,8 +69,8 @@ public class AppLogicImpl
                 // Channels are secure by default (via SSL/TLS). For the example we disable TLS
                 // to avoid needing certificates.
                 .usePlaintext().build();
-        //blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
-        asyncStub = GrpcServiceGrpc.newStub(channel);
+        blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
+        asyncStub = GrpcServiceGrpc.newStub(channel); // usar el asincrono
     }
 
     public static AppLogicImpl getInstance()
@@ -124,6 +131,11 @@ public class AppLogicImpl
     	return DatabaseDao.createDatabase(idUser, databaseName, url, pares);
     }
     
+    // devuelve db MR dado su Id
+    public Optional<DatabaseMapReduce> getDatabaseMr(String idUser, String idDatabase) {    	
+    	return DatabaseMapReduceDao.getDatabase(idDatabase);
+    }
+    
     // devuelve la database dado su id
     public Optional<Database> getDatabase(String idUser, String idDatabase) {    	
     	return DatabaseDao.getDatabase(idDatabase);
@@ -151,12 +163,76 @@ public class AppLogicImpl
     }
     
     // metodo para lanzar procesamiento map reduce
-    public String performMapReduceLogic(String idUser,String idDatabase, String funcion) {
+    public String performMapReduceLogic(String idUser,String idDatabase, String map, String reduce) {
     	// * llamar a DAO para conseguir valores de database
-    	// * tomar esos valores y la funcion 
-    	// * llamar a servidor grpc (asincrono) para realizar procesamiento
-    	// * retornar string 
+    	 Optional<Database> db = this.getDatabase(idUser, idDatabase);
+    	 LinkedList<String> lista = db.get().getPares();
+    	 String pares = convertirListaAString(lista);
+    	// * tomar esos valores y las funciones 
+    	// * usar cliente grpc para realizar procesamiento
+    	 
+    	 // Crear la request 
+    	 var msg = PerformMapReduceRequest.newBuilder()
+ 				.setMapreduce(pares).setMap(map)
+ 		        .setReduce(reduce).build(); // aqui se añade lista de pares y funciones map reduce
+		String mrId = DatabaseMapReduceDao.createDatabase(idUser, idDatabase);
+		String db_name = db.get().getName() + "MR"; // nombre de db nueva
+		final String resultadoMapReduce = ""; // string donde se almacena la respuesta de map reduce
+
+		try {
+			// Llamar al servidor gRPC usando el cliente asincrono y obtener la respuesta
+			//MapReduceResponse response = asyncStub.performMapReduce(msg).get();
+
+			// la funcion recibe una request y un stream observer
+			 asyncStub.performMapReduce(msg, new StreamObserver<PerformMapReduceResponse>() {
+
+	                @Override
+	                public void onNext(PerformMapReduceResponse response) {
+	                    resultadoMapReduce = response.getMapreduce();
+	                }
+
+	                @Override
+	                public void onError(Throwable t) {
+	                    // Manejar errores según sea necesario
+	                    t.printStackTrace();
+	                }
+
+	                @Override
+	                public void onCompleted() {
+	      				logger.info("AppLogicImpl: La comunicacion ha sido completada");
+	      				DatabaseMapReduceDao.completeStatus(mrId); // marcar estado como completado
+	                }
+
+	                public String getResultadoMapReduce() {
+	                    return resultadoMapReduce;
+	                }
+	            });
+
+			 
+			 // se debe responder con: mrid y db_out
+			JSONObject respuesta = new JSONObject();
+			respuesta.put("Id", mrId);
+			respuesta.put("DbOut", db_name);
+			return respuesta.toString(); 
+			
+		} catch (Exception e) {
+			logger.warning("No se ha completado el procesamiento Map Reduce: "+e);
+		}
+    	
     	return null;
+    }
+    
+    // funcion auxiliar usada para convertir una linkedlist a string
+    public static String convertirListaAString(LinkedList<String> lista) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String elemento : lista) {
+            if (stringBuilder.length() > 0) {
+                // separador: coma y espacio
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(elemento);
+        }
+        return stringBuilder.toString();
     }
   
 }

@@ -4,10 +4,10 @@
 package es.um.sisdist.backend.dao;
 
 import es.um.sisdist.backend.dao.database.IDatabaseDAO;
+import es.um.sisdist.backend.dao.databaseMapReduce.IDatabaseMapReduce;
 import es.um.sisdist.backend.dao.user.IUserDAO;
 
 /**
- * @author dsevilla
  *
  */
 public interface IDAOFactory
@@ -19,4 +19,10 @@ public interface IDAOFactory
     public IDatabaseDAO createSQLDatabaseDAO();
 
     public IDatabaseDAO createMongoDatabaseDAO();
+    
+    public IDatabaseMapReduce createSQLDatabaseMrDAO();
+
+    public IDatabaseMapReduce createMongoDatabaseMrDAO();
+    
+    
 }

@@ -33,5 +33,6 @@ class RemoveKeyValueForm(FlaskForm):
     submit = SubmitField('Remove')
 
 class ProcessMRForm(FlaskForm):
-    funcion = StringField('funcion', validators=[InputRequired()])
+    map = StringField('map', validators=[InputRequired()])
+    reduce = StringField('reduce', validators=[InputRequired()])
     submit = SubmitField('Process')

@@ -163,9 +163,11 @@ def databaseInfo():
             elif response.status_code == 400:
                 error2 = 'No se ha podido crear la base de datos'
         elif form3.validate_on_submit():
-            funcion = form3.funcion.data
-            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id+'/mr/'+funcion)
-            if response.status_code == 200:
+            map = form3.map.data
+            reduce = form3.reduce.data
+            datos_database_mr = {"map" : map, "reduce" : reduce}
+            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id+'/mr',json=datos_database_mr)
+            if response.status_code == 202:
                 return redirect(url_for('databaseInfo', db_id=db_id))
             elif response.status_code == 400:
                 error3 = 'No se ha podido realizar el procesamiento Map reduce'

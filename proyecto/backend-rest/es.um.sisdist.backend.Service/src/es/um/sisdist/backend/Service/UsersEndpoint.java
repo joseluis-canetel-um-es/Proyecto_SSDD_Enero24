@@ -6,11 +6,15 @@ import java.util.logging.Logger;
 
 import es.um.sisdist.backend.Service.impl.AppLogicImpl;
 import es.um.sisdist.backend.dao.models.Database;
+import es.um.sisdist.backend.dao.models.DatabaseMapReduce;
 import es.um.sisdist.models.DatabaseDTO;
 import es.um.sisdist.models.DatabaseDTOUtils;
 import es.um.sisdist.models.UserDTO;
 import es.um.sisdist.models.UserDTOUtils;
 import jakarta.json.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -88,41 +92,6 @@ public class UsersEndpoint {
 		}
 
 	}
-
-	/**
-	 * 	
-	 * MAP REDUCE
-	 */
-	// Método para realizar el procesamiento MapReduce
-    @GET
-	@Path("/{id}/db/{dbid}/mr/{funcion}")
-    public Response performMapReduce(@PathParam("id") String idUser, @PathParam("dbid") String idDatabase, @PathParam("funcion") String funcion) {
-        // Llamar a gRPC para realizar el procesamiento MapReduce con la función indicada
-        // lógica de procesamiento MapReduce con la función
-
-    	 
-    	// resultado que devuelve el procesamiento
-		/*
-		 * String resultado = impl.performMapReduceLogic(idUser, idDatabase, funcion);
-		 * 
-		 * if (resultado != null) { return Response.ok(resultado).build(); // Respuesta
-		 * HTTP 200 OK con el resultado } else { return
-		 * Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); // Respuesta
-		 * HTTP 500 Internal Server Error si hubo un problema }
-		 */
-    	return null;
-    }
-
-    // Aquí deberías implementar tu lógica de procesamiento MapReduce con la función proporcionada
-    //private String performMapReduceLogic(String idUser, String idDatabase, String funcion) {
-        // Lógica para procesar MapReduce con la función dada.
-        // Realiza las operaciones necesarias y devuelve el resultado como una cadena.
-
-        // Ejemplo:
-      //  String resultado = MapReduceProcessor.process(idUser, idDatabase, funcion);
-    //    return resultado;
-    //}
-	
 	
 	
 	// obtener las bases de datos de un usuario dado su ID
@@ -155,5 +124,59 @@ public class UsersEndpoint {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 	}
+
+	/**
+	 * 	
+	 * MAP REDUCE
+	 * 
+	 * modificado path --> quitada funcion
+	 * 
+	 *  " map " : " ( define ( ssdd - map p ) ... ) " ,
+		" reduce " : " ( define ( ssdd - reduce k values ) ... ) " ,
+		" out - db " : " output - database " 
+	 * @throws JSONException 
+	 */
+	// Método para realizar el procesamiento MapReduce
+	// Petición de realización de procesamientos map-reduce y comprobación del estado de los mismos
+    @POST
+	@Path("/{id}/db/{dbid}/mr")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response performMapReduce(@PathParam("id") String idUser, @PathParam("dbid") String idDatabase, JsonObject jsonObject) throws JSONException {
+    	// resultado que devuelve el procesamiento sobre la base de datos
+		 String map = jsonObject.getString("map");
+		 String reduce = jsonObject.getString("reduce");
+		 String resultado = impl.performMapReduceLogic(idUser, idDatabase, map, reduce);
+		
+		 JSONObject json = new JSONObject(resultado);
+	     String id = json.getString("Id");
+		  if (resultado != null) { 
+			  // retorna 202 accepted y cabecera location (obligatoria)
+			  logger.info("Se realiza el procesamiento MR correctamente");
+			  String Location =  "/u/"+idUser+"/db/"+idDatabase+"/mr/"+id;
+			  return Response.accepted(resultado).header("Location", Location).build(); // Respuesta HTTP 200 OK con el resultado
+		  } else { 
+			  logger.info("No se realiza el procesamiento MR");
+
+			  return  Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); // Respuesta HTTP 500 Internal Server Error si hubo un problema }
+		  }
+    	//return null;
+    }
+	
+ // metodo consulta de bases de datos Map reduce
+ 	@GET
+ 	@Path("/{id}/db/{dbid}/mr/{mrid}")
+ 	@Produces(MediaType.APPLICATION_JSON)
+ 	public Response getDatabaseMR(@PathParam("id") String idUser, @PathParam("dbid") String idDatabase, @PathParam("mrid") String idDbMr) {
+ 		Optional<DatabaseMapReduce> database = impl.getDatabaseMr(idUser, idDbMr);
+ 		
+ 		
+ 		if (database.isPresent()) {
+ 			return Response.ok(DatabaseDTOUtils.toDTO(database.get())).build();
+ 		} else {
+ 			logger.info("No te envio nada");
+ 			return Response.status(Status.BAD_REQUEST).build();
+ 		}
+ 	}
+
 
 }

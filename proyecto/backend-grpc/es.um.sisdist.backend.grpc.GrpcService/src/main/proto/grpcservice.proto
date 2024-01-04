@@ -8,6 +8,7 @@ package es.um.sisdist.backend.grpc;
 service GrpcService
 {
     rpc Ping(PingRequest) returns (PingResponse);
+    rpc MapReduce(PerformMapReduceRequest) returns (PerformMapReduceResponse);
 }
 
 message PingRequest
@@ -18,4 +19,16 @@ message PingRequest
 message PingResponse
 {
 	int32 v = 1;
+}
+
+message PerformMapReduceRequest 
+{
+  string mapreduce = 1;
+  string map = 2;
+  string reduce = 3;
+}
+
+message PerformMapReduceResponse 
+{
+  string mapreduce = 1;
 }

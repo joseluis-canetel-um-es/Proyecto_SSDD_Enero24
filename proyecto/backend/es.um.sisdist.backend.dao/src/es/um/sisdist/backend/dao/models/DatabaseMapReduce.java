@@ -1,37 +1,42 @@
 package es.um.sisdist.backend.dao.models;
 
 import java.util.LinkedList;
+import java.util.UUID;
 
 import es.um.sisdist.backend.dao.models.utils.UserUtils;
 
-/**
- * 
- * Clase usada para representar las propiedades de una base de datos
- */
-public class Database {
+// clase para almacenar la database una vez realizadas las operaciones de map reduce
+public class DatabaseMapReduce {
+
 	private String idUser; // relacionar el id de usuario con la db
     private String id;
 	private String name;
-	private String url;
-	private LinkedList<String> pares;
+	//private String url;
+	private String mrId; // id usado para retornar en user endpoint
+	private String status; // comprobar si procesamiento ha terminado o no
+	//private LinkedList<String> pares;
 
-	public Database(String idUser, String name, String url) {
+	public DatabaseMapReduce(String idUser, String name) {
 		this.idUser = idUser;
 		this.id = UserUtils.md5pass(idUser+name); // Generar un ID único para la base de datos
 		this.name = name;
-		this.url = url;
-		this.pares = new LinkedList<String>();
+		//this.url = url;
+		this.mrId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
+		this.status = "";
+		//this.pares = new LinkedList<String>();
 	}
 	
-	public Database(String idUser, String id, String name, String url, LinkedList<String> pares) {
+	public DatabaseMapReduce(String idUser, String id, String name, String url, LinkedList<String> pares) {
 		this.idUser = idUser;
 		this.id = id;
 		this.name = name;
-		this.url = url;
-		this.pares = pares;
+		//this.url = url;
+		this.mrId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
+		this.status = "";
+		//this.pares = pares;
 	}
 	
-	public Database() {
+	public DatabaseMapReduce() {
 	}
 	
 	public String getIdUser() {
@@ -60,6 +65,7 @@ public class Database {
 		this.name = name;
 	}
 	
+	/**
 	public String getUrl() {
 		return url;
 	}
@@ -88,26 +94,28 @@ public class Database {
 			}
 		}
 	}
+*/
+	public String getMrId() {
+		return mrId;
+	}
+
+	public void setMrId(String mrId) {
+		this.mrId = mrId;
+	}
 	
-	 public String obtenerParesString() {
-		String separador = ", ";
-		StringBuilder stringBuilder = new StringBuilder();
+	
 
-		for (String par : pares) {
-			stringBuilder.append(par).append(separador);
-		}
+	public String getStatus() {
+		return status;
+	}
 
-		// quitar el último separador 
-		if (stringBuilder.length() > 0) {
-			stringBuilder.setLength(stringBuilder.length() - separador.length());
-		}
-
-		return stringBuilder.toString();
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	@Override
 	public String toString() {
-		return "Database [id=" + id + ", name=" + name + ", url=" + url + ", pares=" + pares + ", idUser=" + idUser
-				+ "]";
+		return "DatabaseMapReduce [idUser=" + idUser + ", id=" + id + ", name=" + name + ", mrId=" + mrId + "]";
 	}
+
 }
