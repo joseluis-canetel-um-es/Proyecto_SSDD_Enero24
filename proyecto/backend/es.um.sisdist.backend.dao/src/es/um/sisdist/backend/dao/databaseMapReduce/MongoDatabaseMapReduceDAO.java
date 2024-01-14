@@ -20,6 +20,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import org.json.JSONObject;
 
 import es.um.sisdist.backend.dao.models.DatabaseMapReduce;
 import es.um.sisdist.backend.dao.utils.Lazy;
@@ -64,6 +65,24 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 	public Optional<DatabaseMapReduce> getDatabase(String idDatabase) {
 		return Optional.ofNullable(collection.get().find(eq("id", idDatabase)).first());
 	}
+	
+	 // Método para obtener la data cuando el estado es 'Finish' y cuando no, devuelve vacio y estado actual
+    public String getDataStatus(String id) {
+        Optional<DatabaseMapReduce> optionalDb = Optional.ofNullable(collection.get().find(Filters.eq("mrId", id), DatabaseMapReduce.class).first());
+		JSONObject data = new JSONObject();
+
+        if (optionalDb.isPresent()) {
+    		if ("Finish".equals(optionalDb.get().getStatus())) {
+    			data.put("mapreduce",optionalDb.get().getData() );
+    			data.put("status",optionalDb.get().getStatus() );
+
+    		}else {
+    			data.put("mapreduce","" );
+    			data.put("status",optionalDb.get().getStatus());
+    		}
+        }
+		return data.toString();
+    }
 
 	// procedimiento para indicar estado completado
 	public void completeStatus(String id)
@@ -77,5 +96,7 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 		    
 		 return optionalDb.map(DatabaseMapReduce::getStatus).orElse(null);
 	}
+	
+	
 	
 }

@@ -51,22 +51,5 @@
         <p class="error"><strong>Error:</strong> {{ error2 }}</p>
         {% endif %}
     </div>
-    <!-- input de "map" y "reduce" y el botón "Process" -->
-    <div class="box">
-        <form method="post" action="/databaseInfo?db_id={{ db_id }}">
-            {{ form3.hidden_tag() }}
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="map" placeholder="Map Function">
-                </div>
-            </div>
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="reduce" placeholder="Reduce Function">
-                </div>
-            </div>
-            <button class="button is-block is-info is-large is-fullwidth" type="submit">Process</button>
-        </form>
-    </div>
 </div>
 {% endblock %}

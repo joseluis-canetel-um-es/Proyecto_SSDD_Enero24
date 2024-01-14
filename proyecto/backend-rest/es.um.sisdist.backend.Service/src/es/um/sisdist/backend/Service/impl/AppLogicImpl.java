@@ -3,19 +3,14 @@
  */
 package es.um.sisdist.backend.Service.impl;
 
-import java.util.ArrayList;
-
-
-
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.bson.json.JsonObject;
-
+import org.json.JSONObject;
 import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
+import es.um.sisdist.backend.grpc.PerformMapReduceRequest;
+import es.um.sisdist.backend.grpc.PerformMapReduceResponse;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.dao.DAOFactoryImpl;
 import es.um.sisdist.backend.dao.IDAOFactory;
@@ -28,6 +23,8 @@ import es.um.sisdist.backend.dao.models.utils.UserUtils;
 import es.um.sisdist.backend.dao.user.IUserDAO;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
+
 
 /**
  * 
@@ -42,7 +39,7 @@ public class AppLogicImpl
     private static final Logger logger = Logger.getLogger(AppLogicImpl.class.getName());
 
     private final ManagedChannel channel;
-    //private final GrpcServiceGrpc.GrpcServiceBlockingStub blockingStub;
+    private final GrpcServiceGrpc.GrpcServiceBlockingStub blockingStub;
     private final GrpcServiceGrpc.GrpcServiceStub asyncStub; // server GRPC asincrono
 
     static AppLogicImpl instance = new AppLogicImpl();
@@ -70,7 +67,7 @@ public class AppLogicImpl
                 // to avoid needing certificates.
                 .usePlaintext().build();
         blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
-        asyncStub = GrpcServiceGrpc.newStub(channel); // usar el asincrono
+        asyncStub = GrpcServiceGrpc.newStub(channel); // usar el asincrono en map reduce
     }
 
     public static AppLogicImpl getInstance()
@@ -96,7 +93,7 @@ public class AppLogicImpl
         // Test de grpc, puede hacerse con la BD
     	var msg = PingRequest.newBuilder().setV(v).build();
         var response = blockingStub.ping(msg);
-        
+   
         return response.getV() == v;
     }
 
@@ -136,9 +133,20 @@ public class AppLogicImpl
     	return DatabaseMapReduceDao.getDatabase(idDatabase);
     }
     
+    // devuelve data de map reduce
+    public String getMapReduceData(String id) 
+    {
+		return DatabaseMapReduceDao.getDataStatus(id);
+	}
+    
     // devuelve la database dado su id
     public Optional<Database> getDatabase(String idUser, String idDatabase) {    	
     	return DatabaseDao.getDatabase(idDatabase);
+    }
+    
+    // devuelve la database dado su name
+    public Optional<Database> getDatabaseByName(String idUser, String nameDb) {    	
+    	return DatabaseDao.getDatabaseByName(nameDb);
     }
     
     // dado un id de usuario retorna las bases de datos relacioandos
@@ -163,9 +171,9 @@ public class AppLogicImpl
     }
     
     // metodo para lanzar procesamiento map reduce
-    public String performMapReduceLogic(String idUser,String idDatabase, String map, String reduce) {
+    public String performMapReduceLogic(String idUser,String nameDb, String map, String reduce) {
     	// * llamar a DAO para conseguir valores de database
-    	 Optional<Database> db = this.getDatabase(idUser, idDatabase);
+    	 Optional<Database> db = this.getDatabaseByName(idUser, nameDb);
     	 LinkedList<String> lista = db.get().getPares();
     	 String pares = convertirListaAString(lista);
     	// * tomar esos valores y las funciones 
@@ -175,20 +183,21 @@ public class AppLogicImpl
     	 var msg = PerformMapReduceRequest.newBuilder()
  				.setMapreduce(pares).setMap(map)
  		        .setReduce(reduce).build(); // aqui se añade lista de pares y funciones map reduce
-		String mrId = DatabaseMapReduceDao.createDatabase(idUser, idDatabase);
+		String mrId = DatabaseMapReduceDao.createDatabase(idUser, nameDb);
 		String db_name = db.get().getName() + "MR"; // nombre de db nueva
-		final String resultadoMapReduce = ""; // string donde se almacena la respuesta de map reduce
+		//String resultadoMapReduce = ""; // string donde se almacena la respuesta de map reduce
+		final String[] resultadoMapReduce = {""};
 
 		try {
 			// Llamar al servidor gRPC usando el cliente asincrono y obtener la respuesta
 			//MapReduceResponse response = asyncStub.performMapReduce(msg).get();
 
 			// la funcion recibe una request y un stream observer
-			 asyncStub.performMapReduce(msg, new StreamObserver<PerformMapReduceResponse>() {
+			 asyncStub.mapReduce(msg, new StreamObserver<PerformMapReduceResponse>() {
 
 	                @Override
 	                public void onNext(PerformMapReduceResponse response) {
-	                    resultadoMapReduce = response.getMapreduce();
+	                    resultadoMapReduce[0] = response.getMapreduce();
 	                }
 
 	                @Override
@@ -204,7 +213,7 @@ public class AppLogicImpl
 	                }
 
 	                public String getResultadoMapReduce() {
-	                    return resultadoMapReduce;
+	                    return resultadoMapReduce[0];
 	                }
 	            });
 

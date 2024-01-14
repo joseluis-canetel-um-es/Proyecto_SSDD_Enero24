@@ -18,6 +18,8 @@ public interface IDatabaseDAO {
 	
 	public Optional<Database> getDatabase(String idDatabase);
 	
+	public Optional<Database> getDatabaseByName(String nameDb);
+	
 	public boolean insertClaveValor(String idDatabase, String key, String value);
 	
 	public boolean deleteClaveValor(String idDatabase, String key);

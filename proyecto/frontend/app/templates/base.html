@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Flask Auth Example</title>
+    <title>Aplicacion SSDD</title>
     <link href="/static/bootstrap.min.css" rel="stylesheet"
           crossorigin="anonymous" />
     <link rel="shortcut icon" href="{{ url_for('serve_static', path='favicon.ico') }}">
@@ -35,7 +35,7 @@
   <!-- Fixed navbar -->
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Mi magnífica aplicación</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">Database Application</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -56,6 +56,10 @@
           
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('viewDatabases') }}">Visualisar Databases</a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('mapReduce') }}">Map Reduce</a>
           </li>
           {% else %}
           <li class="nav-item">

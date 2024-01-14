@@ -11,30 +11,30 @@ public class DatabaseMapReduce {
 	private String idUser; // relacionar el id de usuario con la db
     private String id;
 	private String name;
-	//private String url;
 	private String mrId; // id usado para retornar en user endpoint
 	private String status; // comprobar si procesamiento ha terminado o no
 	//private LinkedList<String> pares;
+	private String data;
+
+	public String getData() {
+		return data;
+	}
+
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
 
 	public DatabaseMapReduce(String idUser, String name) {
 		this.idUser = idUser;
 		this.id = UserUtils.md5pass(idUser+name); // Generar un ID único para la base de datos
 		this.name = name;
-		//this.url = url;
 		this.mrId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
-		this.status = "";
-		//this.pares = new LinkedList<String>();
+		this.status = "Started"; // estado inicio
+		this.data = "{}"; // json vacio
 	}
 	
-	public DatabaseMapReduce(String idUser, String id, String name, String url, LinkedList<String> pares) {
-		this.idUser = idUser;
-		this.id = id;
-		this.name = name;
-		//this.url = url;
-		this.mrId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8);
-		this.status = "";
-		//this.pares = pares;
-	}
 	
 	public DatabaseMapReduce() {
 	}
@@ -65,36 +65,6 @@ public class DatabaseMapReduce {
 		this.name = name;
 	}
 	
-	/**
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public LinkedList<String> getPares() {
-		return pares;
-	}
-	
-	public void setPares(LinkedList<String> pares) {
-		this.pares = pares;
-	}
-	
-	public void addPar(String key, String value) {
-		String par = key+":"+value;
-		pares.add(par);
-	}
-	
-	public void removePar(String key) {
-		for(String par : pares) {
-			if(par.contains(key+":")) {
-				pares.remove(par);
-			}
-		}
-	}
-*/
 	public String getMrId() {
 		return mrId;
 	}
@@ -104,7 +74,6 @@ public class DatabaseMapReduce {
 	}
 	
 	
-
 	public String getStatus() {
 		return status;
 	}

@@ -234,6 +234,12 @@ public class SQLDatabaseDAO implements IDatabaseDAO {
 		return Optional.empty();
 	}
 
+	@Override
+	public Optional<Database> getDatabaseByName(String nameDb) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
 /**
 	@Override
 	public void addClaveValor(String db, String clave, String valor) {

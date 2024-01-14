@@ -138,22 +138,23 @@ public class UsersEndpoint {
 	 */
 	// Método para realizar el procesamiento MapReduce
 	// Petición de realización de procesamientos map-reduce y comprobación del estado de los mismos
-    @POST
-	@Path("/{id}/db/{dbid}/mr")
+    // modificada para recibir como parametro el nombre de la base de datos
+	@POST
+	@Path("/{id}/db/{dbname}/mr")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response performMapReduce(@PathParam("id") String idUser, @PathParam("dbid") String idDatabase, JsonObject jsonObject) throws JSONException {
+    public Response performMapReduce(@PathParam("id") String idUser, @PathParam("dbname") String nameDb, JsonObject jsonObject) throws JSONException {
     	// resultado que devuelve el procesamiento sobre la base de datos
 		 String map = jsonObject.getString("map");
 		 String reduce = jsonObject.getString("reduce");
-		 String resultado = impl.performMapReduceLogic(idUser, idDatabase, map, reduce);
+		 String resultado = impl.performMapReduceLogic(idUser, nameDb, map, reduce);
 		
 		 JSONObject json = new JSONObject(resultado);
 	     String id = json.getString("Id");
 		  if (resultado != null) { 
 			  // retorna 202 accepted y cabecera location (obligatoria)
 			  logger.info("Se realiza el procesamiento MR correctamente");
-			  String Location =  "/u/"+idUser+"/db/"+idDatabase+"/mr/"+id;
-			  return Response.accepted(resultado).header("Location", Location).build(); // Respuesta HTTP 200 OK con el resultado
+			  String Location =  "/u/"+idUser+"/db/"+nameDb+"/mr/"+id;
+			  return Response.accepted(json.toString()).header("Location", Location).build(); 
 		  } else { 
 			  logger.info("No se realiza el procesamiento MR");
 
@@ -162,20 +163,23 @@ public class UsersEndpoint {
     	//return null;
     }
 	
+    
  // metodo consulta de bases de datos Map reduce
  	@GET
- 	@Path("/{id}/db/{dbid}/mr/{mrid}")
- 	@Produces(MediaType.APPLICATION_JSON)
- 	public Response getDatabaseMR(@PathParam("id") String idUser, @PathParam("dbid") String idDatabase, @PathParam("mrid") String idDbMr) {
- 		Optional<DatabaseMapReduce> database = impl.getDatabaseMr(idUser, idDbMr);
+ 	@Path("/{id}/db/{dbname}/mr/{mrid}")
+ 	@Consumes(MediaType.APPLICATION_JSON)
+ 	public String getDatabaseMR(@PathParam("id") String idUser, @PathParam("dbname") String nameDb, @PathParam("mrid") String idDbMr) {
+ 		//Optional<DatabaseMapReduce> database = impl.getDatabaseMr(idUser, idDbMr);
  		
- 		
- 		if (database.isPresent()) {
- 			return Response.ok(DatabaseDTOUtils.toDTO(database.get())).build();
+ 		/**if (database.isPresent()) {
+ 			return impl.getMapReduceData(idDbMr);
  		} else {
- 			logger.info("No te envio nada");
- 			return Response.status(Status.BAD_REQUEST).build();
- 		}
+ 			logger.info("No hay datos en Map reduce");
+ 			return null;
+ 		}*/
+ 		
+		return impl.getMapReduceData(idDbMr);
+
  	}
 
 

@@ -3,10 +3,9 @@ package es.um.sisdist.backend.grpc.impl;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
-
 import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
+import es.um.sisdist.backend.grpc.PerformMapReduceRequest;
+import es.um.sisdist.backend.grpc.PerformMapReduceResponse;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.grpc.PingResponse;
 import es.um.sisdist.backend.grpc.impl.jscheme.JSchemeProvider;
@@ -32,37 +31,25 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 		responseObserver.onCompleted();
 	}
 	
-	public void performMapReduce(
+	public void MapReduce(
 	    PerformMapReduceRequest request,
 	    StreamObserver<PerformMapReduceResponse> responseObserver) {
 	    // acceder a los parámetros de la solicitud, como la base de datos, la función, etc.
 		logger.info("Recived MAP request, value = " + request.toString());
-		
 
 	    // hacer el procesamiento MapReduce y obtener el resultado
-	    String resultadoMapReduce = realizarProcesamientoMapReduce(
+	    /**String resultadoMapReduce = realizarProcesamientoMapReduce(
 	        request.getMapreduce(),
 	        request.getMap(),
-	        request.getReduce());
-	
-	    //  generar la respuesta y envía el resultado al cliente
-	    PerformMapReduceResponse response = PerformMapReduceResponse.newBuilder()
-	        .setResultado(resultadoMapReduce)
-	        .build();
-	    responseObserver.onNext(response);
-		// Terminar la respuesta.
-	    responseObserver.onCompleted();
-	}
-	
-	// Método para realizar el procesamiento MapReduce
-	private String realizarProcesamientoMapReduce(String request, String map, String reduce ) {
-	    JScheme js = JSchemeProvider.js(); // instancia js
+	        request.getReduce());*/
+		
+		JScheme js = JSchemeProvider.js(); // instancia js
 	    // lógica MapReduce con la función map y reduce introducidas
-	    MapReduceApply mapReduce = new MapReduceApply(js, map, reduce /* función reduce aquí */);
+	    MapReduceApply mapReduce = new MapReduceApply(js, request.getMap(), request.getReduce());
 
 	    LinkedList<String> pares = new LinkedList<String>();
 	    // Dividir la cadena en pares clave,valor usando la coma como separador
-        String[] paresArray = request.split(", ");
+        String[] paresArray = request.getMapreduce().split(", ");
 
         for (String par : paresArray) {
             pares.add(par);
@@ -81,11 +68,49 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 	    }
 	    
 	    Map<Object, Object> resultado = mapReduce.map_reduce(); // map reduce
+	
+	    //  generar la respuesta y envía el resultado al cliente
+	    PerformMapReduceResponse response = PerformMapReduceResponse.newBuilder()
+	        .setMapreduce(resultado.toString())
+	        .build();
+	    responseObserver.onNext(response);
+		// Terminar la respuesta.
+	    responseObserver.onCompleted();
+	}
+	
+	// Método para realizar el procesamiento MapReduce
+	/**
+	private String realizarProcesamientoMapReduce(String request, String map, String reduce ) {
+	    JScheme js = JSchemeProvider.js(); // instancia js
+	    // lógica MapReduce con la función map y reduce introducidas
+	    MapReduceApply mapReduce = new MapReduceApply(js, map, reduce);
+
+	    LinkedList<String> pares = new LinkedList<String>();
+	    // Dividir la cadena en pares clave,valor usando la coma como separador
+        String[] paresArray = request.split(", ");
+
+        for (String par : paresArray) {
+            pares.add(par);
+        }
+      
+	    // Realiza procesamiento para cada par de clave-valor de la lista
+	    /**for (KeyValue kv : keyValuePairs) {
+	        mapReduce.apply(kv.getKey(), kv.getValue());
+	    }
+	    for (String par : pares) {
+            String[] keyValue = par.split(":");
+            String key = keyValue[0];
+            String value = keyValue[1];
+    		logger.info("realizarProcesamientoMapReduce, Key: " + key + ", Value: " + value); // para depurar
+            mapReduce.apply(key,value); // aplicamos map reduce a cada par
+	    }
+	    
+	    Map<Object, Object> resultado = mapReduce.map_reduce(); // map reduce
 
 	    return resultado.toString();
 	}
 
-	
+	*/
 
 /*
 	@Override

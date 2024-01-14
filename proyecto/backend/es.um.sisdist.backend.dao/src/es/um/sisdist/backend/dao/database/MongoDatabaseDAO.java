@@ -127,6 +127,12 @@ public class MongoDatabaseDAO implements IDatabaseDAO {
 	public Optional<Database> getDatabase(String idDatabase) {
 		return Optional.ofNullable(collection.get().find(eq("id", idDatabase)).first());
 	}
+	
+
+	@Override
+	public Optional<Database> getDatabaseByName(String nameDb) {
+		return Optional.ofNullable(collection.get().find(eq("name", nameDb)).first());
+	}
 
 
 }

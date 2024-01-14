@@ -9,7 +9,9 @@ public interface IDatabaseMapReduce {
 	
 	public Optional<DatabaseMapReduce> getDatabase(String idDatabase);
 	
-	
 	public void completeStatus(String id);
+	
+    public String getDataStatus(String id);
+
 
 }

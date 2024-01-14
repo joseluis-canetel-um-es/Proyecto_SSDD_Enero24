@@ -8,7 +8,7 @@ import os
 from models import users, User
 
 # Login
-from forms import LoginForm, RegistrationForm, DatabaseForm, AddKeyValueForm, RemoveKeyValueForm, ProcessMRForm
+from forms import LoginForm, RegistrationForm, DatabaseForm, AddKeyValueForm, RemoveKeyValueForm, ProcessMRForm, MapReduceForm
 
 import hashlib
 import logging
@@ -139,10 +139,8 @@ def databaseInfo():
     # -- modificado -- 
     error1 = None
     error2 = None
-    error3 = None
     form1 = AddKeyValueForm()
     form2 = RemoveKeyValueForm()
-    form3 = ProcessMRForm()
     db_id = request.args.get('db_id')
     id = current_user.id
 
@@ -162,22 +160,55 @@ def databaseInfo():
                 return redirect(url_for('databaseInfo', db_id=db_id))
             elif response.status_code == 400:
                 error2 = 'No se ha podido crear la base de datos'
-        elif form3.validate_on_submit():
-            map = form3.map.data
-            reduce = form3.reduce.data
-            datos_database_mr = {"map" : map, "reduce" : reduce}
-            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id+'/mr',json=datos_database_mr)
-            if response.status_code == 202:
-                return redirect(url_for('databaseInfo', db_id=db_id))
-            elif response.status_code == 400:
-                error3 = 'No se ha podido realizar el procesamiento Map reduce'
 
     response = requests.get('http://backend-rest:8080/Service/u/'+id+'/db/'+db_id)
     if response.status_code == 200:
         database = response.json()
     else:
         pass
-    return render_template('databaseInfo.html', database=database, db_id=db_id, form1=form1, form2=form2, form3=form3, error1=error1, error2=error2, error3=error3)
+    return render_template('databaseInfo.html', database=database, db_id=db_id, form1=form1, form2=form2, error1=error1, error2=error2)
+
+@app.route('/mapReduce')
+@login_required
+def mapReduce():
+    return render_template('mapReduce.html')
+
+@app.route('/mapReduceProcessing', methods=['POST'])
+@login_required
+def mapReduceProcessing():
+    form3 = ProcessMRForm()
+    error3 = None
+    location_header = None
+    if request.method == 'POST':
+        if form3.validate_on_submit():
+            id = current_user.id
+            map = form3.map.data
+            reduce = form3.reduce.data
+            name = form3.nameDb.data
+            datos_database_mr = {"map" : map, "reduce" : reduce}
+            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+str(name)+'/mr',json=datos_database_mr)
+            if response.status_code == 202:
+                location_header = response.headers.get('Location')
+                #return redirect(url_for('mapReduce', status=response.json()))
+            elif response.status_code == 500:
+                error3 = 'No se ha podido realizar el procesamiento Map reduce'
+        else:
+            error3 = 'No se ha podido validar el form'
+
+    return render_template('mapReduce.html', error=error3, location_header=location_header)
+
+
+@app.route('/mapReduceResult', methods=['POST'])
+@login_required
+def mapReduceResult():
+    form4 = MapReduceForm()
+    error4 = None
+    name = form4.nameDb.data
+    mrid = form4.mrid.data
+    if request.method == 'POST':
+        response = requests.get('http://backend-rest:8080/Service/u/'+current_user.id+'/db/'+name+'/mr/'+mrid)
+        return render_template('mapreduce.html',resultado=response.json())
+
 
 @app.route('/logout')
 @login_required

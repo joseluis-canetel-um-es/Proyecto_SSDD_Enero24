@@ -35,4 +35,10 @@ class RemoveKeyValueForm(FlaskForm):
 class ProcessMRForm(FlaskForm):
     map = StringField('map', validators=[InputRequired()])
     reduce = StringField('reduce', validators=[InputRequired()])
+    nameDb = StringField('nameDb', validators=[InputRequired()])
     submit = SubmitField('Process')
+
+class MapReduceForm(FlaskForm):
+    mrid = StringField('mrid', validators=[InputRequired()])
+    nameDb = StringField('nameDb', validators=[InputRequired()])
+    submit = SubmitField('Get result')

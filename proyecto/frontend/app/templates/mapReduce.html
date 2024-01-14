@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Map Reduce Processing</h1>
+    <p>Procesamiento Map reduce</p>
+
+    <!-- Formulario para procesamiento Map Reduce -->
+    <div class="box">
+        <h2>Procesamiento Map Reduce</h2>
+        <form method="post" action="/mapReduceProcessing">
+           
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="nameDb" placeholder="Nombre">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="map" placeholder="Map">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="reduce" placeholder="Reduce">
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth" type="submit">Procesar</button>
+        </form>
+        {% if error3 %}
+            <p class="error"><strong>Error:</strong> {{ error3 }}</p>
+        {% endif %}
+        <!-- Mostrar info MR -->
+        {% if status %}
+            <div class="result-box">
+                <h3>Status de Map Reduce</h3>
+                <p>{{ status }}</p>
+            </div>
+        {% else %}
+            <div class="result-box">
+                <p>No devuelve nada</p>
+            </div>
+        {% endif %}
+        {% if location_header %}
+            <p>Location: {{ location_header }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Formulario para obtener resultados -->
+    <div class="box">
+        <h2>Obtener Resultados</h2>
+        <form method="post" action="/mapReduceResult">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="mrid" placeholder="Id">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="nameDb" placeholder="Name">
+                </div>
+            </div>
+            <button class="button is-block is-success is-large is-fullwidth" type="submit">Obtener resultado</button>
+        </form>
+        {% if error4 %}
+            <p class="error"><strong>Error:</strong> {{ error4 }}</p>
+        {% endif %}
+         <!-- Mostrar el resultado -->
+         {% if resultado %}
+         <div class="result-box">
+             <h3>Resultado de Map Reduce</h3>
+             <p>{{ resultado }}</p>
+         </div>
+     {% endif %}
+    </div>
+{% endblock %}
