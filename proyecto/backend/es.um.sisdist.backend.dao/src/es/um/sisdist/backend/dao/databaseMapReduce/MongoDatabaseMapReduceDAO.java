@@ -61,6 +61,7 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 	}
 
 	// return the created db
+	
 	@Override
 	public Optional<DatabaseMapReduce> getDatabase(String idDatabase) {
 		return Optional.ofNullable(collection.get().find(eq("id", idDatabase)).first());
@@ -85,9 +86,11 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
     }
 
 	// procedimiento para indicar estado completado
-	public void completeStatus(String id)
+	public void completeStatus(String id, String finalData)
 	{
 		collection.get().updateOne(Filters.eq("mrId",id),Updates.set("status","Finish"));
+		collection.get().updateOne(Filters.eq("mrId",id),Updates.set("data",finalData));
+
 	}
 	
 	// procedimiento para comprobar si un procesamiento ya ha terminado (Finish) o está a medio (cadena vacía)

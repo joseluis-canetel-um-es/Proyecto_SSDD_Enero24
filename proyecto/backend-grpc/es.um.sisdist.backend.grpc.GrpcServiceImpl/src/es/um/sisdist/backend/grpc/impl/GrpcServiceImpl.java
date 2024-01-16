@@ -16,11 +16,29 @@ import jscheme.JScheme;
 class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase 
 {
 	private Logger logger;
+	private MapReduceApply mapreduce;
 	
     public GrpcServiceImpl(Logger logger) 
     {
 		super();
 		this.logger = logger;
+		this.mapreduce = new MapReduceApply(JSchemeProvider.js(),/** 
+	    		// Función map
+				"(import \"java.lang.String\")"
+				+ "(define (ssdd-map k v)"
+				+ " (display k)"
+				+ " (display \": \")"
+				+ " (display v)"
+				+ " (display \"\\n\")"
+				+ " (for-each (lambda (w)"
+				+ "				(emit (list w 1)))"
+				+ "   (vector->list (.split v \" \"))))",*/
+				"(import \"java.lang.String\")"
+				+ "(define (ssdd-map k v)"
+				+ " (emit (list k (string->number v))))",
+				// Función reduce
+				"(define (ssdd-reduce k l)" +
+				" (apply + l))");
 	}
 
 	@Override
@@ -31,7 +49,9 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 		responseObserver.onCompleted();
 	}
 	
-	public void MapReduce(
+	// modificado
+	@Override
+	public void mapReduce(
 	    PerformMapReduceRequest request,
 	    StreamObserver<PerformMapReduceResponse> responseObserver) {
 	    // acceder a los parámetros de la solicitud, como la base de datos, la función, etc.
@@ -43,9 +63,22 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 	        request.getMap(),
 	        request.getReduce());*/
 		
-		JScheme js = JSchemeProvider.js(); // instancia js
+		//JScheme js = JSchemeProvider.js(); // instancia js
 	    // lógica MapReduce con la función map y reduce introducidas
-	    MapReduceApply mapReduce = new MapReduceApply(js, request.getMap(), request.getReduce());
+	    /**MapReduceApply mapReduce = new MapReduceApply(js, 
+	    		// Función map
+				"(import \"java.lang.String\")"
+				+ "(define (ssdd-map k v)"
+				+ " (display k)"
+				+ " (display \": \")"
+				+ " (display v)"
+				+ " (display \"\\n\")"
+				+ " (for-each (lambda (w)"
+				+ "				(emit (list w 1)))"
+				+ "   (vector->list (.split v \" \"))))",
+				// Función reduce
+				"(define (ssdd-reduce k l)" +
+				" (apply + l))");*/
 
 	    LinkedList<String> pares = new LinkedList<String>();
 	    // Dividir la cadena en pares clave,valor usando la coma como separador
@@ -56,19 +89,26 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
         }
       
 	    // Realiza procesamiento para cada par de clave-valor de la lista
-	    /**for (KeyValue kv : keyValuePairs) {
-	        mapReduce.apply(kv.getKey(), kv.getValue());
-	    }*/
+	 
 	    for (String par : pares) {
             String[] keyValue = par.split(":");
             String key = keyValue[0];
             String value = keyValue[1];
     		logger.info("realizarProcesamientoMapReduce, Key: " + key + ", Value: " + value); // para depurar
-            mapReduce.apply(key,value); // aplicamos map reduce a cada par
+            mapreduce.apply(key,value); // aplicamos map reduce a cada par
 	    }
 	    
-	    Map<Object, Object> resultado = mapReduce.map_reduce(); // map reduce
+	    Map<Object, Object> resultado = mapreduce.map_reduce(); // map reduce
 	
+	    
+	    try {
+			logger.info("Thread Sleep");
+			Thread.sleep(15000);
+		} catch (InterruptedException e) {
+			logger.info("Entro en el catch");
+			e.printStackTrace();
+		}
+	    logger.info("Este es el resultado: "+resultado.toString());
 	    //  generar la respuesta y envía el resultado al cliente
 	    PerformMapReduceResponse response = PerformMapReduceResponse.newBuilder()
 	        .setMapreduce(resultado.toString())
@@ -78,39 +118,6 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 	    responseObserver.onCompleted();
 	}
 	
-	// Método para realizar el procesamiento MapReduce
-	/**
-	private String realizarProcesamientoMapReduce(String request, String map, String reduce ) {
-	    JScheme js = JSchemeProvider.js(); // instancia js
-	    // lógica MapReduce con la función map y reduce introducidas
-	    MapReduceApply mapReduce = new MapReduceApply(js, map, reduce);
-
-	    LinkedList<String> pares = new LinkedList<String>();
-	    // Dividir la cadena en pares clave,valor usando la coma como separador
-        String[] paresArray = request.split(", ");
-
-        for (String par : paresArray) {
-            pares.add(par);
-        }
-      
-	    // Realiza procesamiento para cada par de clave-valor de la lista
-	    /**for (KeyValue kv : keyValuePairs) {
-	        mapReduce.apply(kv.getKey(), kv.getValue());
-	    }
-	    for (String par : pares) {
-            String[] keyValue = par.split(":");
-            String key = keyValue[0];
-            String value = keyValue[1];
-    		logger.info("realizarProcesamientoMapReduce, Key: " + key + ", Value: " + value); // para depurar
-            mapReduce.apply(key,value); // aplicamos map reduce a cada par
-	    }
-	    
-	    Map<Object, Object> resultado = mapReduce.map_reduce(); // map reduce
-
-	    return resultado.toString();
-	}
-
-	*/
 
 /*
 	@Override

@@ -5,6 +5,8 @@ package es.um.sisdist.backend.Service.impl;
 
 import java.util.LinkedList;
 import java.util.Optional;
+import java.util.logging.Level;
+
 import java.util.logging.Logger;
 
 import org.json.JSONObject;
@@ -23,6 +25,7 @@ import es.um.sisdist.backend.dao.models.utils.UserUtils;
 import es.um.sisdist.backend.dao.user.IUserDAO;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 
@@ -134,9 +137,9 @@ public class AppLogicImpl
     }
     
     // devuelve data de map reduce
-    public String getMapReduceData(String id) 
+    public String getMapReduceData(String name) 
     {
-		return DatabaseMapReduceDao.getDataStatus(id);
+		return DatabaseMapReduceDao.getDataStatus(name);
 	}
     
     // devuelve la database dado su id
@@ -171,9 +174,9 @@ public class AppLogicImpl
     }
     
     // metodo para lanzar procesamiento map reduce
-    public String performMapReduceLogic(String idUser,String nameDb, String map, String reduce) {
+    public String performMapReduceLogic(String idUser,String nameDb/**, String map, String reduce*/) {
     	// * llamar a DAO para conseguir valores de database
-    	 Optional<Database> db = this.getDatabaseByName(idUser, nameDb);
+    	 Optional<Database> db = getDatabaseByName(idUser, nameDb);
     	 LinkedList<String> lista = db.get().getPares();
     	 String pares = convertirListaAString(lista);
     	// * tomar esos valores y las funciones 
@@ -181,10 +184,10 @@ public class AppLogicImpl
     	 
     	 // Crear la request 
     	 var msg = PerformMapReduceRequest.newBuilder()
- 				.setMapreduce(pares).setMap(map)
- 		        .setReduce(reduce).build(); // aqui se añade lista de pares y funciones map reduce
-		String mrId = DatabaseMapReduceDao.createDatabase(idUser, nameDb);
+ 				.setMapreduce(pares).build(); // aqui se añade lista de pares y funciones map reduce
 		String db_name = db.get().getName() + "MR"; // nombre de db nueva
+		String mrId = DatabaseMapReduceDao.createDatabase(idUser, db_name);
+
 		//String resultadoMapReduce = ""; // string donde se almacena la respuesta de map reduce
 		final String[] resultadoMapReduce = {""};
 
@@ -203,32 +206,62 @@ public class AppLogicImpl
 	                @Override
 	                public void onError(Throwable t) {
 	                    // Manejar errores según sea necesario
+	                	logger.info("------------------Error en onError");
 	                    t.printStackTrace();
 	                }
 
 	                @Override
 	                public void onCompleted() {
 	      				logger.info("AppLogicImpl: La comunicacion ha sido completada");
-	      				DatabaseMapReduceDao.completeStatus(mrId); // marcar estado como completado
+	      				
+	      				DatabaseMapReduceDao.completeStatus(mrId, resultadoMapReduce[0]); // marcar estado como completado
 	                }
-
+	                /*
 	                public String getResultadoMapReduce() {
 	                    return resultadoMapReduce[0];
-	                }
+	                }*/
 	            });
 
 			 
-			 // se debe responder con: mrid y db_out
-			JSONObject respuesta = new JSONObject();
-			respuesta.put("Id", mrId);
-			respuesta.put("DbOut", db_name);
-			return respuesta.toString(); 
-			
-		} catch (Exception e) {
-			logger.warning("No se ha completado el procesamiento Map Reduce: "+e);
+		} catch (StatusRuntimeException e) {
+	  		  logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
 		}
-    	
-    	return null;
+    	/*
+		try {
+	  		  
+	  		  StreamObserver<PerformMapReduceResponse> streamResponse = new StreamObserver<PerformMapReduceResponse>() {
+
+	  			@Override
+				public void onNext(PerformMapReduceResponse response) {
+	  				logger.info("---------------OnNext: "+response.getMapreduce());
+	  				resultadoMapReduce[0] = response.getMapreduce();
+				}
+
+	  			@Override
+	  			public void onError(Throwable t) {
+	  			}
+
+	  			@Override
+	  			public void onCompleted() {
+	  				logger.info("AppLogicImpl: La comunicacion ha sido completada");
+      				DatabaseMapReduceDao.completeStatus(mrId); // marcar estado como completado
+                }
+
+	  		  };
+	  		  
+	  		  asyncStub.mapReduce(msg,streamResponse);
+	  		  
+	  		  
+  	  	} catch (StatusRuntimeException e) {
+  		  logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+  	  	}
+  	  	*/
+    	//return null;
+		 // se debe responder con: mrid y db_out
+		JSONObject respuesta = new JSONObject();
+		respuesta.put("Id", mrId);
+		respuesta.put("DbOut", db_name);
+		return respuesta.toString(); 
     }
     
     // funcion auxiliar usada para convertir una linkedlist a string

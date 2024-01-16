@@ -144,15 +144,16 @@ public class UsersEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response performMapReduce(@PathParam("id") String idUser, @PathParam("dbname") String nameDb, JsonObject jsonObject) throws JSONException {
     	// resultado que devuelve el procesamiento sobre la base de datos
-		 String map = jsonObject.getString("map");
-		 String reduce = jsonObject.getString("reduce");
-		 String resultado = impl.performMapReduceLogic(idUser, nameDb, map, reduce);
+		 //String map = jsonObject.getString("map");
+		 //String reduce = jsonObject.getString("reduce");
+		 String resultado = impl.performMapReduceLogic(idUser, nameDb/**, map, reduce*/);
 		
 		 JSONObject json = new JSONObject(resultado);
 	     String id = json.getString("Id");
 		  if (resultado != null) { 
 			  // retorna 202 accepted y cabecera location (obligatoria)
 			  logger.info("Se realiza el procesamiento MR correctamente");
+			  logger.info("este sería el ID: "+id);
 			  String Location =  "/u/"+idUser+"/db/"+nameDb+"/mr/"+id;
 			  return Response.accepted(json.toString()).header("Location", Location).build(); 
 		  } else { 
@@ -177,8 +178,10 @@ public class UsersEndpoint {
  			logger.info("No hay datos en Map reduce");
  			return null;
  		}*/
- 		
-		return impl.getMapReduceData(idDbMr);
+ 		String result = impl.getMapReduceData(idDbMr);
+		logger.info("Map reduce:"+result);
+
+		return result;
 
  	}
 

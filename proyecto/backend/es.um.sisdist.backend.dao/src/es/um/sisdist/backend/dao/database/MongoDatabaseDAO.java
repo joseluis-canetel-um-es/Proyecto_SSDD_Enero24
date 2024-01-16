@@ -10,10 +10,15 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static java.util.Arrays.*;
 
+import org.bson.Document;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.nin;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
@@ -51,6 +56,7 @@ public class MongoDatabaseDAO implements IDatabaseDAO {
 		try {
 			Database database = new Database(idUser, databaseName, url); // Crear objeto DataBase
 	        database.setPares(pares); // Asignar la lista de pares clave-valor
+	        
 	        collection.get().insertOne(database);
 	        return true; 
         } catch (Exception e) {
@@ -108,8 +114,12 @@ public class MongoDatabaseDAO implements IDatabaseDAO {
 	        // Crear una lista para almacenar las bases de datos
 	        LinkedList<Database> databaseList = new LinkedList<>();
 
+	        Bson filter = and(
+	        	    eq("idUser", idUser),
+	        	    nin("status", "Finish", "Started")  // Excluir documentos con status "Finish" o "Started"
+	        	);
 	        // Realizar una consulta para encontrar todas las bases de datos del usuario
-	        FindIterable<Database> cursor = collection.get().find(eq("idUser", idUser));
+	        FindIterable<Database> cursor = collection.get().find(filter);
 
 	        for (Database database : cursor) {
 	            // Agregar el objeto Database a la lista

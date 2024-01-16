@@ -1,6 +1,5 @@
 package es.um.sisdist.backend.dao.models;
 
-import java.util.LinkedList;
 import java.util.UUID;
 
 import es.um.sisdist.backend.dao.models.utils.UserUtils;

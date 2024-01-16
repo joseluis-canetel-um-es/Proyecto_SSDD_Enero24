@@ -1,5 +1,5 @@
 from hashlib import sha512
-from flask import Flask, render_template, send_from_directory, url_for, request, redirect
+from flask import Flask, render_template, send_from_directory, url_for, request, redirect, flash
 from flask_login import LoginManager, login_manager, current_user, login_user, login_required, logout_user
 import requests
 import os
@@ -171,43 +171,49 @@ def databaseInfo():
 @app.route('/mapReduce')
 @login_required
 def mapReduce():
-    return render_template('mapReduce.html')
+    form = ProcessMRForm()
+    error3 = None
+    return render_template('mapReduce.html', form=form, error3=error3)
 
 @app.route('/mapReduceProcessing', methods=['POST'])
 @login_required
 def mapReduceProcessing():
-    form3 = ProcessMRForm()
+    form = ProcessMRForm()
     error3 = None
     location_header = None
     if request.method == 'POST':
-        if form3.validate_on_submit():
+        if form.validate_on_submit():
             id = current_user.id
-            map = form3.map.data
-            reduce = form3.reduce.data
-            name = form3.nameDb.data
-            datos_database_mr = {"map" : map, "reduce" : reduce}
-            response = requests.put('http://backend-rest:8080/Service/u/'+id+'/db/'+str(name)+'/mr',json=datos_database_mr)
+            #map = form3.map.data
+            #reduce = form3.reduce.data
+            name = form.nameDb.data
+            #datos_database_mr = {"map" : map, "reduce" : reduce}
+            response = requests.post('http://backend-rest:8080/Service/u/'+id+'/db/'+name+'/mr')
             if response.status_code == 202:
+                logging.info('DEVUELVE 202 MAP REDUCE')
                 location_header = response.headers.get('Location')
+                flash('Procesamiento Map Reduce exitoso', 'success')
                 #return redirect(url_for('mapReduce', status=response.json()))
+                return render_template('mapReduce.html', form=form,status=response.json(), location_header=location_header)
+
             elif response.status_code == 500:
                 error3 = 'No se ha podido realizar el procesamiento Map reduce'
         else:
-            error3 = 'No se ha podido validar el form'
+            flash('No se ha podido validar el formulario', 'error')
 
-    return render_template('mapReduce.html', error=error3, location_header=location_header)
+    return render_template('mapReduce.html', error=error3, form=form, location_header=location_header)
 
 
 @app.route('/mapReduceResult', methods=['POST'])
 @login_required
 def mapReduceResult():
-    form4 = MapReduceForm()
+    form = MapReduceForm()
     error4 = None
-    name = form4.nameDb.data
-    mrid = form4.mrid.data
+    name = form.nameDb.data
+    mrid = form.mrid.data
     if request.method == 'POST':
         response = requests.get('http://backend-rest:8080/Service/u/'+current_user.id+'/db/'+name+'/mr/'+mrid)
-        return render_template('mapreduce.html',resultado=response.json())
+        return render_template('mapReduce.html',form=form,resultado=response.json())
 
 
 @app.route('/logout')

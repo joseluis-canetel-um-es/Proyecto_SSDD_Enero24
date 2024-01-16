@@ -24,8 +24,6 @@ message PingResponse
 message PerformMapReduceRequest 
 {
   string mapreduce = 1;
-  string map = 2;
-  string reduce = 3;
 }
 
 message PerformMapReduceResponse 
