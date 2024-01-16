@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 
+{% block custom_style %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    h1 {
+        color: #007bff;
+    }
+
+    p {
+        color: #495057;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1 class="mt-5">
-    Flask Login Example
-</h1>
-<p class="lead">
-    Create a Login page using Flask :)
-</p>
+<div class="container mt-5">
+    <h1>
+        Database App
+    </h1>
+    <p class="lead">
+        Welcome to the App :)
+    </p>
+</div>
 {% endblock %}

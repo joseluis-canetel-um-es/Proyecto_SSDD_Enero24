@@ -12,7 +12,6 @@ public class DatabaseMapReduce {
 	private String name;
 	private String mrId; // id usado para retornar en user endpoint
 	private String status; // comprobar si procesamiento ha terminado o no
-	//private LinkedList<String> pares;
 	private String data;
 
 	public String getData() {

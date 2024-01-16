@@ -1,10 +1,22 @@
 {% extends "base.html" %}
 
+{% block custom_style %}
+    <!-- Custom styles for this template -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .title {
+            color: #007bff;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <h1 class="title">
         Welcome, {{current_user.name}}!!
     </h1>
 
     <h2>Your accesses: {{current_user.visits}}</h2>
-    
 {% endblock %}

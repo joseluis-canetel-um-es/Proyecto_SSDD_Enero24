@@ -1,9 +1,71 @@
 {% extends "base.html" %}
 
+{% block custom_style %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .column {
+        background-color: #ffffff;
+        border: 1px solid #007bff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+        padding: 20px;
+    }
+
+    .title {
+        color: #007bff;
+    }
+
+    .box {
+        margin-top: 20px;
+    }
+
+    .field {
+        margin-bottom: 20px;
+    }
+
+    .input {
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+
+    .error {
+        color: #dc3545;
+        margin-top: 10px;
+    }
+
+    .success {
+        color: #28a745;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="column is-4 is-offset-4">
     <h3 class="title">Crear Databases</h3>
     <div class="box">
+        {% if success_message %}
+            <p class="success"><strong>Success:</strong> {{ success_message }}</p>
+        {% endif %}
+
         <form method="POST" action="/createDatabases">
             {{ form.hidden_tag() }}
             <div class="field">
@@ -27,7 +89,7 @@
             <button class="button is-block is-info is-large is-fullwidth" type="submit">Create database</button>
         </form>
         {% if error %}
-        <p class="error"><strong>Error:</strong> {{ error }}</p>
+            <p class="error"><strong>Error:</strong> {{ error }}</p>
         {% endif %}
     </div>
 </div>

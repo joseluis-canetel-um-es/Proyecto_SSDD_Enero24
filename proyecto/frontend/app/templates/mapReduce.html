@@ -1,5 +1,56 @@
 {% extends "base.html" %}
 
+{% block custom_style %}
+    <!-- Custom styles for this template -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .box {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e2f0ff;
+            border: 1px solid #b3d1ff;
+            border-radius: 5px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .control {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+
+        .button {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #ffffff;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <h1>Map Reduce Processing</h1>
     <p>Procesamiento Map reduce</p>
@@ -11,7 +62,7 @@
             {{ form.hidden_tag() }}
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="text" name="nameDb" placeholder="Nombre">
+                    <input class="input is-large" type="text" name="nameDb" placeholder="Name">
                 </div>
             </div>
             <button class="button is-block is-info is-large is-fullwidth" type="submit">Procesar</button>
@@ -22,16 +73,13 @@
         <!-- Mostrar info MR -->
         {% if status %}
             <div class="result-box">
-                <h3>Status de Map Reduce</h3>
+                <h3>Informacion de Map Reduce</h3>
                 <p>{{ status }}</p>
             </div>
         {% else %}
             <div class="result-box">
                 <p>No devuelve nada</p>
             </div>
-        {% endif %}
-        {% if location_header %}
-            <p>Location: {{ location_header }}</p>
         {% endif %}
     </div>
 

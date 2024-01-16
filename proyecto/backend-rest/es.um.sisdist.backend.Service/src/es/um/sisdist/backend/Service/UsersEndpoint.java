@@ -178,6 +178,7 @@ public class UsersEndpoint {
  			logger.info("No hay datos en Map reduce");
  			return null;
  		}*/
+ 		// aqui error: no devuelve proceso correcto
  		String result = impl.getMapReduceData(idDbMr);
 		logger.info("Map reduce:"+result);
 

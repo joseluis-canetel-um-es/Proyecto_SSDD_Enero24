@@ -107,7 +107,9 @@ def createDatabases():
         datos_database = {"name" : name, "key" : key, "value": value}
         response = requests.post('http://backend-rest:8080/Service/u/'+id+'/db', headers = cabecera, json=datos_database)
         if response.status_code == 201:
-            error =  "Database registrada correctamente"
+            #error =  "Database registrada correctamente"
+            success_message = "Database registrada correctamente"
+            return render_template('createDatabases.html', form=form, success_message=success_message)
         elif response.status_code == 400:
             error = 'No se ha podido crear la base de datos'
         else:
@@ -190,7 +192,6 @@ def mapReduceProcessing():
             #datos_database_mr = {"map" : map, "reduce" : reduce}
             response = requests.post('http://backend-rest:8080/Service/u/'+id+'/db/'+name+'/mr')
             if response.status_code == 202:
-                logging.info('DEVUELVE 202 MAP REDUCE')
                 location_header = response.headers.get('Location')
                 flash('Procesamiento Map Reduce exitoso', 'success')
                 #return redirect(url_for('mapReduce', status=response.json()))

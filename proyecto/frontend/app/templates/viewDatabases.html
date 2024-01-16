@@ -1,27 +1,56 @@
 {% extends "base.html" %}
 
+{% block custom_style %}
+    <style>
+        h1, h2, h3 {
+            color: #007bff;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <h1>All Database Information</h1>
 
     <h2>Your Databases:</h2>
-    <ul>
-        {% for database in databases %}
-        <li>
-            {{ database.name }} - <a href="{{ url_for('databaseInfo', db_id=database.id) }}">Ver Base de Datos</a> <br>
-            <ul>
-                {% for par in database.pares %}
+
+    {% if databases %}
+        <ul>
+            {% for database in databases %}
                 <li>
-                  {% set pair = par.split(":") %}
-                  <strong>Clave:</strong> {{ pair[0] }} <br>
-                  <strong>Valor:</strong> {{ pair[1] }}
+                    {{ database.name }} - <a href="{{ url_for('databaseInfo', db_id=database.id) }}">Ver Base de Datos</a> <br>
+                    <ul>
+                        {% for par in database.pares %}
+                            <li>
+                                {% set pair = par.split(":") %}
+                                <strong>Clave:</strong> {{ pair[0] }} <br>
+                                <strong>Valor:</strong> {{ pair[1] }}
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </li>
-                {% endfor %}
-              </ul>
-              
-        </li>
-        {% else %}
-            <li>No databases found.</li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No databases found.</p>
+    {% endif %}
 
 {% endblock %}

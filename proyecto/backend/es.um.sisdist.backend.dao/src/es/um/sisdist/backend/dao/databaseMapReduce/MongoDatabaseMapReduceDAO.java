@@ -42,11 +42,10 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 			MongoDatabase databaseMr = mongoClient
 					.getDatabase(Optional.ofNullable(System.getenv("DB_NAME")).orElse("ssdd"))
 					.withCodecRegistry(pojoCodecRegistry);
-			return databaseMr.getCollection("databases", DatabaseMapReduce.class);
+			return databaseMr.getCollection("mapreducedatabases", DatabaseMapReduce.class);
 		});
 	}
 
-	
 	// create MR new database, return mrId
 	@Override
 	public String createDatabase(String idUser, String databaseName) {
@@ -61,7 +60,6 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 	}
 
 	// return the created db
-	
 	@Override
 	public Optional<DatabaseMapReduce> getDatabase(String idDatabase) {
 		return Optional.ofNullable(collection.get().find(eq("id", idDatabase)).first());
@@ -103,3 +101,5 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 	
 	
 }
+
+

@@ -1,6 +1,69 @@
 {% extends "base.html" %}
 
+{% block custom_style %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    h1 {
+        color: #007bff;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 20px;
+    }
+
+    strong {
+        color: #007bff;
+    }
+
+    .box {
+        margin-top: 20px;
+    }
+
+    .field {
+        margin-bottom: 20px;
+    }
+
+    .input {
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+
+    .error {
+        color: #dc3545;
+        margin-top: 10px;
+    }
+
+    .container {
+        max-height: 400px;
+        overflow-y: auto; /* Añadir scrollbar si es necesario */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="container">
     <h1>Database Information</h1>
     <strong>ID:</strong> {{ database.id }} <br>
     <strong>Url:</strong> {{ database.url }} <br>
@@ -36,6 +99,7 @@
         <p class="error"><strong>Error:</strong> {{ error1 }}</p>
         {% endif %}
     </div>
+    
     <div class="box">
         <form method="post" action="/databaseInfo?db_id={{ db_id }}">
             {{ form2.hidden_tag() }}

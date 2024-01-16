@@ -178,6 +178,7 @@ public class AppLogicImpl
     	// * llamar a DAO para conseguir valores de database
     	 Optional<Database> db = getDatabaseByName(idUser, nameDb);
     	 LinkedList<String> lista = db.get().getPares();
+    	 logger.info("AppLogic: estos son los pares sobre MR: "+lista); //BIEN
     	 String pares = convertirListaAString(lista);
     	// * tomar esos valores y las funciones 
     	// * usar cliente grpc para realizar procesamiento
@@ -192,8 +193,6 @@ public class AppLogicImpl
 		final String[] resultadoMapReduce = {""};
 
 		try {
-			// Llamar al servidor gRPC usando el cliente asincrono y obtener la respuesta
-			//MapReduceResponse response = asyncStub.performMapReduce(msg).get();
 
 			// la funcion recibe una request y un stream observer
 			 asyncStub.mapReduce(msg, new StreamObserver<PerformMapReduceResponse>() {
@@ -206,7 +205,6 @@ public class AppLogicImpl
 	                @Override
 	                public void onError(Throwable t) {
 	                    // Manejar errores según sea necesario
-	                	logger.info("------------------Error en onError");
 	                    t.printStackTrace();
 	                }
 
@@ -216,47 +214,13 @@ public class AppLogicImpl
 	      				
 	      				DatabaseMapReduceDao.completeStatus(mrId, resultadoMapReduce[0]); // marcar estado como completado
 	                }
-	                /*
-	                public String getResultadoMapReduce() {
-	                    return resultadoMapReduce[0];
-	                }*/
+	               
 	            });
 
 			 
 		} catch (StatusRuntimeException e) {
 	  		  logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
 		}
-    	/*
-		try {
-	  		  
-	  		  StreamObserver<PerformMapReduceResponse> streamResponse = new StreamObserver<PerformMapReduceResponse>() {
-
-	  			@Override
-				public void onNext(PerformMapReduceResponse response) {
-	  				logger.info("---------------OnNext: "+response.getMapreduce());
-	  				resultadoMapReduce[0] = response.getMapreduce();
-				}
-
-	  			@Override
-	  			public void onError(Throwable t) {
-	  			}
-
-	  			@Override
-	  			public void onCompleted() {
-	  				logger.info("AppLogicImpl: La comunicacion ha sido completada");
-      				DatabaseMapReduceDao.completeStatus(mrId); // marcar estado como completado
-                }
-
-	  		  };
-	  		  
-	  		  asyncStub.mapReduce(msg,streamResponse);
-	  		  
-	  		  
-  	  	} catch (StatusRuntimeException e) {
-  		  logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-  	  	}
-  	  	*/
-    	//return null;
 		 // se debe responder con: mrid y db_out
 		JSONObject respuesta = new JSONObject();
 		respuesta.put("Id", mrId);

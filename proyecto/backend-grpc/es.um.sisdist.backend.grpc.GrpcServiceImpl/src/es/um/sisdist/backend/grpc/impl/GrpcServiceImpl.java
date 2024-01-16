@@ -11,34 +11,16 @@ import es.um.sisdist.backend.grpc.PingResponse;
 import es.um.sisdist.backend.grpc.impl.jscheme.JSchemeProvider;
 import es.um.sisdist.backend.grpc.impl.jscheme.MapReduceApply;
 import io.grpc.stub.StreamObserver;
-import jscheme.JScheme;
 
 class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase 
 {
 	private Logger logger;
-	private MapReduceApply mapreduce;
 	
     public GrpcServiceImpl(Logger logger) 
     {
 		super();
 		this.logger = logger;
-		this.mapreduce = new MapReduceApply(JSchemeProvider.js(),/** 
-	    		// Función map
-				"(import \"java.lang.String\")"
-				+ "(define (ssdd-map k v)"
-				+ " (display k)"
-				+ " (display \": \")"
-				+ " (display v)"
-				+ " (display \"\\n\")"
-				+ " (for-each (lambda (w)"
-				+ "				(emit (list w 1)))"
-				+ "   (vector->list (.split v \" \"))))",*/
-				"(import \"java.lang.String\")"
-				+ "(define (ssdd-map k v)"
-				+ " (emit (list k (string->number v))))",
-				// Función reduce
-				"(define (ssdd-reduce k l)" +
-				" (apply + l))");
+		
 	}
 
 	@Override
@@ -55,7 +37,7 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 	    PerformMapReduceRequest request,
 	    StreamObserver<PerformMapReduceResponse> responseObserver) {
 	    // acceder a los parámetros de la solicitud, como la base de datos, la función, etc.
-		logger.info("Recived MAP request, value = " + request.toString());
+		logger.info("Recived MAP request, value = " + request.toString());//BIEN
 
 	    // hacer el procesamiento MapReduce y obtener el resultado
 	    /**String resultadoMapReduce = realizarProcesamientoMapReduce(
@@ -65,7 +47,8 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 		
 		//JScheme js = JSchemeProvider.js(); // instancia js
 	    // lógica MapReduce con la función map y reduce introducidas
-	    /**MapReduceApply mapReduce = new MapReduceApply(js, 
+	   
+		MapReduceApply mapreduce = new MapReduceApply(JSchemeProvider.js(),/** 
 	    		// Función map
 				"(import \"java.lang.String\")"
 				+ "(define (ssdd-map k v)"
@@ -75,11 +58,13 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 				+ " (display \"\\n\")"
 				+ " (for-each (lambda (w)"
 				+ "				(emit (list w 1)))"
-				+ "   (vector->list (.split v \" \"))))",
+				+ "   (vector->list (.split v \" \"))))",*/
+				"(import \"java.lang.String\")"
+				+ "(define (ssdd-map k v)"
+				+ " (emit (list k (string->number v))))",
 				// Función reduce
 				"(define (ssdd-reduce k l)" +
-				" (apply + l))");*/
-
+				" (apply + l))");
 	    LinkedList<String> pares = new LinkedList<String>();
 	    // Dividir la cadena en pares clave,valor usando la coma como separador
         String[] paresArray = request.getMapreduce().split(", ");
@@ -100,12 +85,11 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 	    
 	    Map<Object, Object> resultado = mapreduce.map_reduce(); // map reduce
 	
-	    
+	    // el hilo debe parar por procesamiento anterior
 	    try {
 			logger.info("Thread Sleep");
-			Thread.sleep(15000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			logger.info("Entro en el catch");
 			e.printStackTrace();
 		}
 	    logger.info("Este es el resultado: "+resultado.toString());
