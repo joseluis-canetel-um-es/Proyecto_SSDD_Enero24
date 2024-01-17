@@ -50,9 +50,6 @@ def login():
             if response.status_code == 200: 
                 user = User(response.json()['id'], response.json()['name'], form.email.data.encode('utf-8'), form.password.data.encode('utf-8'),response.json()['token'], int(response.json()['visits']))
                 users.append(user)
-                logging.debug('EEEEEEEEEEEEEEEEEEEH ESTE ES EL NUMERO DE VISITAS', int(response.json()['visits']))
-                logging.debug('EEEEEEEEEEEEEEEEEEEH ESTE ES EL NUMERO DE VISITAS EN USER', user.visits)
-
                 login_user(user, remember=form.remember_me.data)
                 return redirect(url_for('profile'))
             else:

@@ -110,27 +110,7 @@ public class MongoUserDAO implements IUserDAO
             return false;
         }
     }
-
-    /**
-	@Override
-	public boolean addVisits(String email) {
-		try {
-			Optional<User> userOptional = getUserByEmail(email);
-		    if (userOptional.isPresent()) {
-		        User user = userOptional.get();
-		        user.addVisits();
-		        com.mongodb.client.result.UpdateResult result = collection.get().replaceOne(eq("email", email), user);
-	            return result.getModifiedCount() > 0;
-		    }else {
-		    	return false;
-		    }
-	    } catch (Exception e) {
-	    	 return false;
-	    }
-	}
-	*/
     
-    /**modificado por kholoud*/
    	@Override
    	public void addVisits(String email) {
    		// TODO Auto-generated method stub

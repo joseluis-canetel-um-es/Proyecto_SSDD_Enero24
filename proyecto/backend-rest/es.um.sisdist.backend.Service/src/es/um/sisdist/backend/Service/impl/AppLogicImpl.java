@@ -178,7 +178,6 @@ public class AppLogicImpl
     	// * llamar a DAO para conseguir valores de database
     	 Optional<Database> db = getDatabaseByName(idUser, nameDb);
     	 LinkedList<String> lista = db.get().getPares();
-    	 logger.info("AppLogic: estos son los pares sobre MR: "+lista); //BIEN
     	 String pares = convertirListaAString(lista);
     	// * tomar esos valores y las funciones 
     	// * usar cliente grpc para realizar procesamiento
@@ -189,7 +188,6 @@ public class AppLogicImpl
 		String db_name = db.get().getName() + "MR"; // nombre de db nueva
 		String mrId = DatabaseMapReduceDao.createDatabase(idUser, db_name);
 
-		//String resultadoMapReduce = ""; // string donde se almacena la respuesta de map reduce
 		final String[] resultadoMapReduce = {""};
 
 		try {

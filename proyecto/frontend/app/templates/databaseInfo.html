@@ -13,6 +13,8 @@
     ul {
         list-style-type: none;
         padding: 0;
+        max-height: 400px; /* Ajusta la altura máxima de la lista de valores */
+        overflow-y: auto; /* Añadir scrollbar si es necesario */
     }
 
     li {
@@ -28,13 +30,13 @@
     }
 
     .field {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
 
     .input {
-        border: 1px solid #007bff;
-        border-radius: 4px;
+        width: 100%;
         padding: 10px;
+        box-sizing: border-box;
     }
 
     .button {
@@ -44,6 +46,7 @@
         border-radius: 4px;
         padding: 10px;
         cursor: pointer;
+        width: 100%;
     }
 
     .button:hover {
@@ -56,8 +59,7 @@
     }
 
     .container {
-        max-height: 400px;
-        overflow-y: auto; /* Añadir scrollbar si es necesario */
+        overflow-y: auto; /* Añadir scrollbar al contenedor si es necesario */
     }
 </style>
 {% endblock %}
@@ -82,18 +84,14 @@
             {{ form1.hidden_tag() }}
             <input type="hidden" name="_method" value="PUT">
             <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="key" placeholder="Key">
-                </div>
+                <input class="input is-large" type="text" name="key" placeholder="Key">
             </div>
 
             <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="value" placeholder="Value">
-                </div>
+                <input class="input is-large" type="text" name="value" placeholder="Value">
             </div>
 
-            <button class="button is-block is-info is-large is-fullwidth" type="submit">Add</button>
+            <button class="button is-block is-info is-large" type="submit">Add</button>
         </form>
         {% if error1 %}
         <p class="error"><strong>Error:</strong> {{ error1 }}</p>
@@ -105,11 +103,9 @@
             {{ form2.hidden_tag() }}
             <input type="hidden" name="_method" value="DELETE">
             <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="key" placeholder="Key">
-                </div>
+                <input class="input is-large" type="text" name="key" placeholder="Key">
             </div>
-            <button class="button is-block is-info is-large is-fullwidth" type="submit">Remove</button>
+            <button class="button is-block is-info is-large" type="submit">Remove</button>
         </form>
         {% if error2 %}
         <p class="error"><strong>Error:</strong> {{ error2 }}</p>

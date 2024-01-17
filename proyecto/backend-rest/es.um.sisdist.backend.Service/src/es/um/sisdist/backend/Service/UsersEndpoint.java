@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import es.um.sisdist.backend.Service.impl.AppLogicImpl;
 import es.um.sisdist.backend.dao.models.Database;
-import es.um.sisdist.backend.dao.models.DatabaseMapReduce;
 import es.um.sisdist.models.DatabaseDTO;
 import es.um.sisdist.models.DatabaseDTOUtils;
 import es.um.sisdist.models.UserDTO;
@@ -153,7 +152,6 @@ public class UsersEndpoint {
 		  if (resultado != null) { 
 			  // retorna 202 accepted y cabecera location (obligatoria)
 			  logger.info("Se realiza el procesamiento MR correctamente");
-			  logger.info("este sería el ID: "+id);
 			  String Location =  "/u/"+idUser+"/db/"+nameDb+"/mr/"+id;
 			  return Response.accepted(json.toString()).header("Location", Location).build(); 
 		  } else { 
@@ -161,7 +159,6 @@ public class UsersEndpoint {
 
 			  return  Response.status(Response.Status.INTERNAL_SERVER_ERROR).build(); // Respuesta HTTP 500 Internal Server Error si hubo un problema }
 		  }
-    	//return null;
     }
 	
     
@@ -170,16 +167,8 @@ public class UsersEndpoint {
  	@Path("/{id}/db/{dbname}/mr/{mrid}")
  	@Consumes(MediaType.APPLICATION_JSON)
  	public String getDatabaseMR(@PathParam("id") String idUser, @PathParam("dbname") String nameDb, @PathParam("mrid") String idDbMr) {
- 		//Optional<DatabaseMapReduce> database = impl.getDatabaseMr(idUser, idDbMr);
  		
- 		/**if (database.isPresent()) {
- 			return impl.getMapReduceData(idDbMr);
- 		} else {
- 			logger.info("No hay datos en Map reduce");
- 			return null;
- 		}*/
- 		// aqui error: no devuelve proceso correcto
- 		String result = impl.getMapReduceData(idDbMr);
+  		String result = impl.getMapReduceData(idDbMr);
 		logger.info("Map reduce:"+result);
 
 		return result;

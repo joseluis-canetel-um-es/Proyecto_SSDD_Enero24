@@ -51,7 +51,6 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 	public String createDatabase(String idUser, String databaseName) {
 		try {
 			DatabaseMapReduce db_mr = new DatabaseMapReduce(idUser, databaseName); // Crear objeto DB MapReduce
-			//db_mr.setPares(pares); // Asignar la lista de pares clave-valor
 	        collection.get().insertOne(db_mr);
 	        return db_mr.getMrId(); 
         } catch (Exception e) {
@@ -83,7 +82,7 @@ public class MongoDatabaseMapReduceDAO implements IDatabaseMapReduce{
 		return data.toString();
     }
 
-	// procedimiento para indicar estado completado
+	// procedimiento para indicar estado completado y asociar data final de map reduce
 	public void completeStatus(String id, String finalData)
 	{
 		collection.get().updateOne(Filters.eq("mrId",id),Updates.set("status","Finish"));

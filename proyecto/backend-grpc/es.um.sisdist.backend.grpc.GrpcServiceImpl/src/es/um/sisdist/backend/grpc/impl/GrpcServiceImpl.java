@@ -31,38 +31,17 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 		responseObserver.onCompleted();
 	}
 	
-	// modificado
 	@Override
 	public void mapReduce(
 	    PerformMapReduceRequest request,
 	    StreamObserver<PerformMapReduceResponse> responseObserver) {
 	    // acceder a los parámetros de la solicitud, como la base de datos, la función, etc.
-		logger.info("Recived MAP request, value = " + request.toString());//BIEN
-
-	    // hacer el procesamiento MapReduce y obtener el resultado
-	    /**String resultadoMapReduce = realizarProcesamientoMapReduce(
-	        request.getMapreduce(),
-	        request.getMap(),
-	        request.getReduce());*/
-		
-		//JScheme js = JSchemeProvider.js(); // instancia js
-	    // lógica MapReduce con la función map y reduce introducidas
+		logger.info("Recived MAP request, value = " + request.toString());
 	   
-		MapReduceApply mapreduce = new MapReduceApply(JSchemeProvider.js(),/** 
-	    		// Función map
-				"(import \"java.lang.String\")"
-				+ "(define (ssdd-map k v)"
-				+ " (display k)"
-				+ " (display \": \")"
-				+ " (display v)"
-				+ " (display \"\\n\")"
-				+ " (for-each (lambda (w)"
-				+ "				(emit (list w 1)))"
-				+ "   (vector->list (.split v \" \"))))",*/
+		MapReduceApply mapreduce = new MapReduceApply(JSchemeProvider.js(),
 				"(import \"java.lang.String\")"
 				+ "(define (ssdd-map k v)"
 				+ " (emit (list k (string->number v))))",
-				// Función reduce
 				"(define (ssdd-reduce k l)" +
 				" (apply + l))");
 	    LinkedList<String> pares = new LinkedList<String>();
@@ -79,27 +58,22 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
             String[] keyValue = par.split(":");
             String key = keyValue[0];
             String value = keyValue[1];
-    		logger.info("realizarProcesamientoMapReduce, Key: " + key + ", Value: " + value); // para depurar
             mapreduce.apply(key,value); // aplicamos map reduce a cada par
 	    }
 	    
 	    Map<Object, Object> resultado = mapreduce.map_reduce(); // map reduce
-	
-	    // el hilo debe parar por procesamiento anterior
 	    try {
-			logger.info("Thread Sleep");
+			logger.info("Thread Sleep"); // el hilo debe parar por procesamiento anterior
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	    logger.info("Este es el resultado: "+resultado.toString());
 	    //  generar la respuesta y envía el resultado al cliente
 	    PerformMapReduceResponse response = PerformMapReduceResponse.newBuilder()
 	        .setMapreduce(resultado.toString())
 	        .build();
 	    responseObserver.onNext(response);
-		// Terminar la respuesta.
-	    responseObserver.onCompleted();
+	    responseObserver.onCompleted();// Terminar la respuesta.
 	}
 	
 
